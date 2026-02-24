@@ -15,9 +15,6 @@ WORKDIR /app
 
 COPY package*.json ./
 
-# Install prod uniquement (plus léger, moins de dépendances)
-RUN npm ci --omit=dev --no-audit --no-fund
-
 COPY . .
 
 # Droits minimaux
