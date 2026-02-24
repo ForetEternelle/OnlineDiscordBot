@@ -1,0 +1,15 @@
+services:
+  discord-bot-v2:
+    build: .
+    container_name: discord-bot-v2
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
