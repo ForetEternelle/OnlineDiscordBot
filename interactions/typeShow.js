@@ -5,7 +5,6 @@ const {
     SeparatorBuilder,
     Colors
 } = require('discord.js');
-const fetch = require('node-fetch');
 const {logInteraction} = require('../tools/log');
 const {baseUrlDataApi} = require('../tools/settings');
 
