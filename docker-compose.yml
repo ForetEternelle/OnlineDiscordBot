@@ -5,6 +5,8 @@ services:
     environment:
       - NODE_ENV=production
     restart: unless-stopped
+    networks:
+      - web
 
     cap_drop:
       - ALL
@@ -13,3 +15,7 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+
+networks:
+  web:
+    external: true
