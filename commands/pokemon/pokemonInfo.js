@@ -208,7 +208,7 @@ async function pokemonInfo(interaction) {
         const number = pokemonData.number || '???';
         const thumbnailUrl =
             mainForm.sprite ||
-            `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonData.number}.png`;
+            `${process.env.IMAGE_URL}${pokemonData.number}.png`;
 
         const container = new ContainerBuilder().setAccentColor(color);
 
