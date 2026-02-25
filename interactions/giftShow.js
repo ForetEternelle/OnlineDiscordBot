@@ -11,7 +11,7 @@ const { baseUrlOnlineServerAPI } = require('../tools/settings');
 async function handleGiftShow(interaction) {
     const giftId = interaction.customId.replace('gift_show_', '');
 
-    await interaction.deferReply({ flags: MessageFlags.ephemeral});
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral});
 
     try {
         const response = await axios.get(`${baseUrlOnlineServerAPI}/gift/${giftId}`, {
@@ -56,7 +56,7 @@ async function handleGiftShow(interaction) {
 
 
         await interaction.editReply({
-            flags: MessageFlags.IsComponentsV2,
+            flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
             components: [container]
         });
     } catch (error) {

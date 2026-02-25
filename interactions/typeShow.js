@@ -12,7 +12,7 @@ async function handleTypeShow(interaction) {
     const typeSymbol = interaction.customId.replace('type_', '');
     const lang = interaction.locale || 'en';
 
-    await interaction.deferReply({ flags: MessageFlags.ephemeral});
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral});
     try {
         const response = await fetch(`${baseUrlDataApi}/types/${typeSymbol}?lang=${encodeURIComponent(lang.toString())}`, {
             headers: {
@@ -72,7 +72,7 @@ async function handleTypeShow(interaction) {
         }
 
         await interaction.editReply({
-            flags: MessageFlags.IsComponentsV2,
+            flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
             components: [container]
         });
 
