@@ -23,9 +23,5 @@ USER nodeapp
 
 ENTRYPOINT ["dumb-init", "--"]
 
-# --- HEALTHCHECK ---
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD node -e "process.exit(require('child_process').execSync('ps -o comm= -p 1').toString().includes('node') ? 0 : 1)"
-
 RUN npm install
 CMD ["node", "bot.js"]

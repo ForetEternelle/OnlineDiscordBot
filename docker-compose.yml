@@ -7,10 +7,17 @@ services:
       TOKEN: ${TOKEN}
       CLIENT_ID: ${CLIENT_ID}
       BEARER: ${BEARER}
+      ONLINE_SERVER_URL: ${ONLINE_SERVER_URL}
       BASE_URL_DATA_API: ${BASE_URL_DATA_API}
       IMAGE_URL: ${IMAGE_URL}
       BOT_VERSION: ${BOT_VERSION}
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pgrep", "node"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 5
     networks:
       - web
 

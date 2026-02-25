@@ -2,9 +2,9 @@ const {GatewayIntentBits} = require('discord.js');
 const stream = require("node:stream");
 
 // Bot name
-const botName = 'OnlineDiscordBot';
+const botName = 'Forêt Éternelle Bot';
 // URL of the online server API
-const baseUrlOnlineServerAPI = 'http://onlineserver.srv953596.hstgr.cloud:8181/api';
+const baseUrlOnlineServerAPI = process.env.ONLINE_SERVER_URL;
 // Url of the data API
 const baseUrlDataApi = process.env.BASE_URL_DATA_API;
 // URL of the icon to display in the footer of the messages
