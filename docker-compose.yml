@@ -3,7 +3,13 @@ services:
     build: .
     container_name: discord-bot-v2
     environment:
-      - NODE_ENV=production
+      - NODE_ENV: ${NODE_ENV}
+      - TOKEN: ${TOKEN}
+      - CLIENT_ID: ${CLIENT_ID}
+      - BEARER: ${BEARER}
+      - BASE_URL_DATA_API: ${BASE_URL_DATA_API}
+      - IMAGE_URL: ${IMAGE_URL}
+      - BOT_VERSION: ${BOT_VERSION}
     restart: unless-stopped
     networks:
       - web
