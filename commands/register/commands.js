@@ -23,7 +23,7 @@ const commands = [
     new SlashCommandBuilder()
         .setName('about')
         .setNameLocalizations({
-            fr: 'a_propos'
+            fr: 'info'
         })
         .setDescription('Displays information about the bot.')
         .setDescriptionLocalizations({
