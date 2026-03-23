@@ -158,23 +158,28 @@ async function pokemonInfo(interaction) {
 
         const color = hexToDecimalColor(mainForm.type1?.color);
         const number = pokemonData.number || '???';
-        const thumbnailUrl =
-            mainForm.sprite ||
-            `${pokemonImageBaseUrl}${pokemonData.number}.png`;
-
         const container = new ContainerBuilder().setAccentColor(color);
 
-        const headerSection = new SectionBuilder()
-            .addTextDisplayComponents(
-                new TextDisplayBuilder({content: `# **${formatName(pokemonData.name)} - ${number}**`}),
-                new TextDisplayBuilder({content: `${pokemonData.description}`}),
-                new TextDisplayBuilder({
-                    content: `${t.height}: **${mainForm.height ?? '?'} m** | ${t.weight}: **${mainForm.weight ?? '?'} kg**`
-                })
-            )
-            .setThumbnailAccessory(new ThumbnailBuilder({media: {url: thumbnailUrl}}));
+        const headerComponents = [
+            new TextDisplayBuilder({content: `# **${formatName(pokemonData.name)} - ${number}**`}),
+            new TextDisplayBuilder({content: `${pokemonData.description}`}),
+            new TextDisplayBuilder({
+                content: `${t.height}: **${mainForm.height ?? '?'} m** | ${t.weight}: **${mainForm.weight ?? '?'} kg**`
+            })
+        ];
 
-        container.addSectionComponents(headerSection);
+        if (pokemonImageBaseUrl && pokemonImageBaseUrl.trim() !== "") {
+            const thumbnailUrl = `${pokemonImageBaseUrl}${pokemonData.number}.png`;
+            const thumbnail = new ThumbnailBuilder({
+                media: { url: thumbnailUrl }
+            });
+            const headerSection = new SectionBuilder()
+                .addTextDisplayComponents(...headerComponents)
+                .setThumbnailAccessory(thumbnail);
+            container.addSectionComponents(headerSection);
+        } else {
+            container.addTextDisplayComponents(...headerComponents);
+        }
         container.addSeparatorComponents(new SeparatorBuilder());
 
         const statsLines = [
@@ -304,7 +309,7 @@ async function pokemonInfo(interaction) {
         });
 
     } catch (error) {
-        console.error('❌ Error fetching Pokémon data:', error.message);
+        console.error('❌ Error fetching Pokémon data:', error);
         await interaction.editReply({content: t.error});
     }
 }
