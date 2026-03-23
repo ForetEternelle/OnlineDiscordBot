@@ -5,7 +5,7 @@ const {
     Colors
 } = require('discord.js');
 const { logInteraction } = require('../tools/log');
-const { baseUrlDataApi } = require('../tools/settings');
+const { baseUrlDataApi, onlineServerBearerToken } = require('../tools/settings');
 
 async function handleAbilityShow(interaction) {
     const abilityId = interaction.customId.split('&')[0].replace('ability_', '');
@@ -18,7 +18,7 @@ async function handleAbilityShow(interaction) {
             `${baseUrlDataApi}/abilities/${abilityId}?lang=${encodeURIComponent(lang.toString())}`,
             {
                 headers: {
-                    authorization: process.env.BEARER
+                    authorization: onlineServerBearerToken
                 }
             }
         );

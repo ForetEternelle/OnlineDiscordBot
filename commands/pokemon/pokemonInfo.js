@@ -10,7 +10,9 @@ const {
     SeparatorBuilder,
     Colors
 } = require('discord.js');
-const {baseUrlDataApi} = require('../../tools/settings');
+
+
+const {baseUrlDataApi, pokemonImageBaseUrl} = require('../../tools/settings');
 
 /**
  * Format a Pokémon name (capitalize first letter).
@@ -208,7 +210,7 @@ async function pokemonInfo(interaction) {
         const number = pokemonData.number || '???';
         const thumbnailUrl =
             mainForm.sprite ||
-            `${process.env.IMAGE_URL}${pokemonData.number}.png`;
+            `${pokemonImageBaseUrl}${pokemonData.number}.png`;
 
         const container = new ContainerBuilder().setAccentColor(color);
 

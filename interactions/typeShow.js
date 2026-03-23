@@ -6,7 +6,7 @@ const {
     Colors
 } = require('discord.js');
 const {logInteraction} = require('../tools/log');
-const {baseUrlDataApi} = require('../tools/settings');
+const {baseUrlDataApi, onlineServerBearerToken} = require('../tools/settings');
 
 async function handleTypeShow(interaction) {
     const typeSymbol = interaction.customId.replace('type_', '');
@@ -16,7 +16,7 @@ async function handleTypeShow(interaction) {
     try {
         const response = await fetch(`${baseUrlDataApi}/types/${typeSymbol}?lang=${encodeURIComponent(lang.toString())}`, {
             headers: {
-                authorization: process.env.BEARER
+                authorization: onlineServerBearerToken
             },
         });
 
