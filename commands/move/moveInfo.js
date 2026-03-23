@@ -1,11 +1,14 @@
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const {
     MessageFlags,
     ContainerBuilder,
+    SectionBuilder,
     TextDisplayBuilder,
     SeparatorBuilder,
     Colors
 } = require('discord.js');
 const {baseUrlDataApi} = require("../../tools/settings");
+const {getLanguage} = require("../../tools/language");
 
 /**
  * Convert hex color to Discord decimal color safely.
@@ -18,320 +21,218 @@ function hexToDecimalColor(hex) {
 }
 
 /**
- * Simple localization system for text labels.
- * @param {'en' | 'fr' | 'es'} lang
- * @returns {Record<string, string>}
+ * Labels for the locales.
  */
-function getLocale(lang) {
-    const locales = {
-        en: {
-            type: 'Type',
-            category: 'Category',
-            power: 'Power',
-            accuracy: 'Accuracy',
-            pp: 'PP',
-            priority: 'Priority',
-            criticalRate: 'Critical Rate',
-            targeting: 'Targeting',
-            aimedTarget: 'Target',
-            contactType: 'Contact',
-            execution: 'Execution',
-            charge: 'Charge',
-            recharge: 'Recharge',
-            method: 'Method',
-            interactionsLabel: 'Interactions',
-            secondaryEffects: 'Secondary Effects',
-            chance: 'Chance',
-            statusEffects: 'Status Effects',
-            mechanicalTagsLabel: 'Tags',
-            yes: 'Yes',
-            no: 'No',
-            none: 'None',
-            notFound: name => `⚠️ Move "${name}" not found.`,
-            error: '❌ Unable to retrieve move information.',
-            missingName: '⚠️ You must specify a move name.',
-            categories: {
-                physical: 'Physical',
-                special: 'Special',
-                status: 'Status'
-            },
-            targets: {
-                adjacent_pokemon: 'Adjacent Pokémon',
-                adjacent_foe: 'Adjacent Foe',
-                adjacent_all_foe: 'All Adjacent Foes',
-                all_foe: 'All Foes',
-                adjacent_all_pokemon: 'All Adjacent Pokémon',
-                all_pokemon: 'All Pokémon',
-                user: 'User',
-                user_or_adjacent_ally: 'User or Adjacent Ally',
-                adjacent_ally: 'Adjacent Ally',
-                all_ally: 'All Allies',
-                all_ally_but_user: 'All Allies (except User)',
-                any_other_pokemon: 'Any Other Pokémon',
-                random_foe: 'Random Foe'
-            },
-            contacts: {
-                NONE: 'None',
-                DIRECT: 'Direct',
-                DISTANT: 'Distant'
-            },
-            methods: {
-                s_basic: 'Basic',
-                s_stat: 'Stat Modifier',
-                s_status: 'Status Infliction',
-                s_multi_hit: 'Multi-Hit',
-                s_2hits: 'Two Hits',
-                s_ohko: 'One-Hit KO',
-                s_2turns: 'Two Turns',
-                s_self_stat: 'Self Stat Modifier',
-                s_self_status: 'Self Status'
-            },
-            interactionNames: {
-                BLOCABLE: 'Blockable',
-                MIRROR_MOVE: 'Mirror Move',
-                SNATCHABLE: 'Snatchable',
-                MAGIC_COAT_AFFECTED: 'Magic Coat',
-                KING_ROCK_UTILITY: "King's Rock",
-                AFFECTED_BY_GRAVITY: 'Affected by Gravity',
-                NON_SKY_BATTLE: 'Not usable in Sky Battle'
-            },
-            mechanicalTagNames: {
-                AUTHENTIC: 'Authentic',
-                BALLISTIC: 'Ballistic',
-                BITE: 'Bite',
-                DANCE: 'Dance',
-                PUNCH: 'Punch',
-                SLICE: 'Slice',
-                SOUND: 'Sound',
-                WIND: 'Wind',
-                PULSE: 'Pulse',
-                POWDER: 'Powder',
-                MENTAL: 'Mental'
-            },
-            statuses: {
-                BURN: 'Burn',
-                FREEZE: 'Freeze',
-                PARALYSIS: 'Paralysis',
-                POISON: 'Poison',
-                TOXIC: 'Badly Poisoned',
-                SLEEP: 'Sleep',
-                CONFUSION: 'Confusion',
-                FLINCH: 'Flinch'
-            }
+const T = {
+    en: {
+        type: 'Type',
+        category: 'Category',
+        power: 'Power',
+        accuracy: 'Accuracy',
+        pp: 'PP',
+        priority: 'Priority',
+        criticalRate: 'Critical Rate',
+        targeting: 'Targeting',
+        aimedTarget: 'Target',
+        contactType: 'Contact',
+        execution: 'Execution',
+        charge: 'Charge',
+        recharge: 'Recharge',
+        method: 'Method',
+        interactionsLabel: 'Interactions',
+        secondaryEffects: 'Secondary Effects',
+        chance: 'Chance',
+        statusEffects: 'Status Effects',
+        mechanicalTagsLabel: 'Tags',
+        yes: 'Yes',
+        no: 'No',
+        none: 'None',
+        notFound: name => `⚠️ Move "${name}" not found.`,
+        error: '❌ Unable to retrieve move information.',
+        missingName: '⚠️ You must specify a move name.',
+        categories: {
+            physical: 'Physical',
+            special: 'Special',
+            status: 'Status'
         },
-        fr: {
-            type: 'Type',
-            category: 'Catégorie',
-            power: 'Puissance',
-            accuracy: 'Précision',
-            pp: 'PP',
-            priority: 'Priorité',
-            criticalRate: 'Taux critique',
-            targeting: 'Ciblage',
-            aimedTarget: 'Cible',
-            contactType: 'Contact',
-            execution: 'Exécution',
-            charge: 'Charge',
-            recharge: 'Recharge',
-            method: 'Méthode',
-            interactionsLabel: 'Interactions',
-            secondaryEffects: 'Effets secondaires',
-            chance: 'Chance',
-            statusEffects: 'Effets de statut',
-            mechanicalTagsLabel: 'Tags',
-            yes: 'Oui',
-            no: 'Non',
-            none: 'Aucun',
-            notFound: name => `⚠️ L'attaque "${name}" est introuvable.`,
-            error: '❌ Impossible de récupérer les informations de l\'attaque.',
-            missingName: '⚠️ Vous devez spécifier un nom d\'attaque.',
-            categories: {
-                physical: 'Physique',
-                special: 'Spéciale',
-                status: 'Statut'
-            },
-            targets: {
-                adjacent_pokemon: 'Pokémon adjacent',
-                adjacent_foe: 'Ennemi adjacent',
-                adjacent_all_foe: 'Tous les ennemis adjacents',
-                all_foe: 'Tous les ennemis',
-                adjacent_all_pokemon: 'Tous les Pokémon adjacents',
-                all_pokemon: 'Tous les Pokémon',
-                user: 'Utilisateur',
-                user_or_adjacent_ally: 'Utilisateur ou allié adjacent',
-                adjacent_ally: 'Allié adjacent',
-                all_ally: 'Tous les alliés',
-                all_ally_but_user: 'Tous les alliés (sauf utilisateur)',
-                any_other_pokemon: 'N\'importe quel autre Pokémon',
-                random_foe: 'Ennemi aléatoire'
-            },
-            contacts: {
-                NONE: 'Aucun',
-                DIRECT: 'Direct',
-                DISTANT: 'Distant'
-            },
-            methods: {
-                s_basic: 'Basique',
-                s_stat: 'Modification de stat',
-                s_status: 'Infliction de statut',
-                s_multi_hit: 'Multi-coups',
-                s_2hits: 'Deux coups',
-                s_ohko: 'K.O. en un coup',
-                s_2turns: 'Deux tours',
-                s_self_stat: 'Auto-modification de stat',
-                s_self_status: 'Auto-statut'
-            },
-            interactionNames: {
-                BLOCABLE: 'Blocable',
-                MIRROR_MOVE: 'Mimique',
-                SNATCHABLE: 'Larcin',
-                MAGIC_COAT_AFFECTED: 'Reflet Magik',
-                KING_ROCK_UTILITY: 'Roche Royale',
-                AFFECTED_BY_GRAVITY: 'Affecté par Gravité',
-                NON_SKY_BATTLE: 'Non utilisable en Combat Ciel'
-            },
-            mechanicalTagNames: {
-                AUTHENTIC: 'Authentique',
-                BALLISTIC: 'Balistique',
-                BITE: 'Morsure',
-                DANCE: 'Danse',
-                PUNCH: 'Poing',
-                SLICE: 'Tranchant',
-                SOUND: 'Son',
-                WIND: 'Vent',
-                PULSE: 'Aura',
-                POWDER: 'Poudre',
-                MENTAL: 'Mental'
-            },
-            statuses: {
-                BURN: 'Brûlure',
-                FREEZE: 'Gel',
-                PARALYSIS: 'Paralysie',
-                POISON: 'Poison',
-                TOXIC: 'Empoisonnement grave',
-                SLEEP: 'Sommeil',
-                CONFUSION: 'Confusion',
-                FLINCH: 'Tressaillement'
-            }
+        targets: {
+            adjacent_pokemon: 'Adjacent Pokémon',
+            adjacent_foe: 'Adjacent Foe',
+            adjacent_all_foe: 'All Adjacent Foes',
+            all_foe: 'All Foes',
+            adjacent_all_pokemon: 'All Adjacent Pokémon',
+            all_pokemon: 'All Pokémon',
+            user: 'User',
+            user_or_adjacent_ally: 'User or Adjacent Ally',
+            adjacent_ally: 'Adjacent Ally',
+            all_ally: 'All Allies',
+            all_ally_but_user: 'All Allies (except User)',
+            any_other_pokemon: 'Any Other Pokémon',
+            random_foe: 'Random Foe'
         },
-        es: {
-            type: 'Tipo',
-            category: 'Categoría',
-            power: 'Potencia',
-            accuracy: 'Precisión',
-            pp: 'PP',
-            priority: 'Prioridad',
-            criticalRate: 'Tasa crítica',
-            targeting: 'Objetivo',
-            aimedTarget: 'Objetivo',
-            contactType: 'Contacto',
-            execution: 'Ejecución',
-            charge: 'Carga',
-            recharge: 'Recarga',
-            method: 'Método',
-            interactionsLabel: 'Interacciones',
-            secondaryEffects: 'Efectos secundarios',
-            chance: 'Probabilidad',
-            statusEffects: 'Efectos de estado',
-            mechanicalTagsLabel: 'Etiquetas',
-            yes: 'Sí',
-            no: 'No',
-            none: 'Ninguno',
-            notFound: name => `⚠️ El movimiento "${name}" no se ha encontrado.`,
-            error: '❌ No se pudieron obtener los datos del movimiento.',
-            missingName: '⚠️ Debes especificar un nombre de movimiento.',
-            categories: {
-                physical: 'Físico',
-                special: 'Especial',
-                status: 'Estado'
-            },
-            targets: {
-                adjacent_pokemon: 'Pokémon adyacente',
-                adjacent_foe: 'Enemigo adyacente',
-                adjacent_all_foe: 'Todos los enemigos adyacentes',
-                all_foe: 'Todos los enemigos',
-                adjacent_all_pokemon: 'Todos los Pokémon adyacentes',
-                all_pokemon: 'Todos los Pokémon',
-                user: 'Usuario',
-                user_or_adjacent_ally: 'Usuario o aliado adyacente',
-                adjacent_ally: 'Aliado adyacente',
-                all_ally: 'Todos los aliados',
-                all_ally_but_user: 'Todos los aliados (excepto usuario)',
-                any_other_pokemon: 'Cualquier otro Pokémon',
-                random_foe: 'Enemigo aleatorio'
-            },
-            contacts: {
-                NONE: 'Ninguno',
-                DIRECT: 'Directo',
-                DISTANT: 'Distante'
-            },
-            methods: {
-                s_basic: 'Básico',
-                s_stat: 'Modificador de stat',
-                s_status: 'Inflicción de estado',
-                s_multi_hit: 'Multi-golpe',
-                s_2hits: 'Dos golpes',
-                s_ohko: 'K.O. de un golpe',
-                s_2turns: 'Dos turnos',
-                s_self_stat: 'Auto-modificador de stat',
-                s_self_status: 'Auto-estado'
-            },
-            interactionNames: {
-                BLOCABLE: 'Bloqueable',
-                MIRROR_MOVE: 'Espejo',
-                SNATCHABLE: 'Robo',
-                MAGIC_COAT_AFFECTED: 'Capa Mágica',
-                KING_ROCK_UTILITY: 'Roca del Rey',
-                AFFECTED_BY_GRAVITY: 'Afectado por Gravedad',
-                NON_SKY_BATTLE: 'No usable en Combate Cielo'
-            },
-            mechanicalTagNames: {
-                AUTHENTIC: 'Auténtico',
-                BALLISTIC: 'Balístico',
-                BITE: 'Mordisco',
-                DANCE: 'Danza',
-                PUNCH: 'Puño',
-                SLICE: 'Cortante',
-                SOUND: 'Sonido',
-                WIND: 'Viento',
-                PULSE: 'Pulso',
-                POWDER: 'Polvo',
-                MENTAL: 'Mental'
-            },
-            statuses: {
-                BURN: 'Quemadura',
-                FREEZE: 'Congelación',
-                PARALYSIS: 'Parálisis',
-                POISON: 'Veneno',
-                TOXIC: 'Envenenamiento grave',
-                SLEEP: 'Sueño',
-                CONFUSION: 'Confusión',
-                FLINCH: 'Retroceso'
-            }
+        contacts: {
+            NONE: 'None',
+            DIRECT: 'Direct',
+            DISTANT: 'Distant'
+        },
+        methods: {
+            s_basic: 'Basic',
+            s_stat: 'Stat Modifier',
+            s_status: 'Status Infliction',
+            s_multi_hit: 'Multi-Hit',
+            s_2hits: 'Two Hits',
+            s_ohko: 'One-Hit KO',
+            s_2turns: 'Two Turns',
+            s_self_stat: 'Self Stat Modifier',
+            s_self_status: 'Self Status'
+        },
+        interactionNames: {
+            BLOCABLE: 'Blockable',
+            MIRROR_MOVE: 'Mirror Move',
+            SNATCHABLE: 'Snatchable',
+            MAGIC_COAT_AFFECTED: 'Magic Coat',
+            KING_ROCK_UTILITY: "King's Rock",
+            AFFECTED_BY_GRAVITY: 'Affected by Gravity',
+            NON_SKY_BATTLE: 'Not usable in Sky Battle'
+        },
+        mechanicalTagNames: {
+            AUTHENTIC: 'Authentic',
+            BALLISTIC: 'Ballistic',
+            BITE: 'Bite',
+            DANCE: 'Dance',
+            PUNCH: 'Punch',
+            SLICE: 'Slice',
+            SOUND: 'Sound',
+            WIND: 'Wind',
+            PULSE: 'Pulse',
+            POWDER: 'Powder',
+            MENTAL: 'Mental'
+        },
+        statuses: {
+            BURN: 'Burn',
+            FREEZE: 'Freeze',
+            PARALYSIS: 'Paralysis',
+            POISON: 'Poison',
+            TOXIC: 'Badly Poisoned',
+            SLEEP: 'Sleep',
+            CONFUSION: 'Confusion',
+            FLINCH: 'Flinch'
         }
-    };
-    return locales[lang] || locales.en;
-}
+    },
+    fr: {
+        type: 'Type',
+        category: 'Catégorie',
+        power: 'Puissance',
+        accuracy: 'Précision',
+        pp: 'PP',
+        priority: 'Priorité',
+        criticalRate: 'Taux de Critique',
+        targeting: 'Ciblage',
+        aimedTarget: 'Cible',
+        contactType: 'Contact',
+        execution: 'Exécution',
+        charge: 'Charge',
+        recharge: 'Recharge',
+        method: 'Méthode',
+        interactionsLabel: 'Interactions',
+        secondaryEffects: 'Effets Secondaires',
+        chance: 'Chance',
+        statusEffects: 'Effets de Statut',
+        mechanicalTagsLabel: 'Tags',
+        yes: 'Oui',
+        no: 'Non',
+        none: 'Aucun',
+        notFound: name => `⚠️ Capacité "${name}" non trouvée.`,
+        error: '❌ Impossible de récupérer les informations de la capacité.',
+        missingName: '⚠️ Vous devez spécifier un nom de capacité.',
+        categories: {
+            physical: 'Physique',
+            special: 'Spéciale',
+            status: 'Statut'
+        },
+        targets: {
+            adjacent_pokemon: 'Pokémon adjacent',
+            adjacent_foe: 'Ennemi adjacent',
+            adjacent_all_foe: 'Tous les ennemis adjacents',
+            all_foe: 'Tous les ennemis',
+            adjacent_all_pokemon: 'Tous les Pokémon adjacents',
+            all_pokemon: 'Tous les Pokémon',
+            user: 'Lanceur',
+            user_or_adjacent_ally: 'Lanceur ou Allié adjacent',
+            adjacent_ally: 'Allié adjacent',
+            all_ally: 'Tous les alliés',
+            all_ally_but_user: 'Tous les alliés (sauf lanceur)',
+            any_other_pokemon: 'N\'importe quel autre Pokémon',
+            random_foe: 'Ennemi aléatoire'
+        },
+        contacts: {
+            NONE: 'Aucun',
+            DIRECT: 'Direct',
+            DISTANT: 'À distance'
+        },
+        methods: {
+            s_basic: 'Basique',
+            s_stat: 'Modificateur de Stat',
+            s_status: 'Infliction de Statut',
+            s_multi_hit: 'Coups Multiples',
+            s_2hits: 'Deux Coups',
+            s_ohko: 'K.O. en un coup',
+            s_2turns: 'Deux Tours',
+            s_self_stat: 'Modificateur de Stat (Soi)',
+            s_self_status: 'Statut (Soi)'
+        },
+        interactionNames: {
+            BLOCABLE: 'Bloquable',
+            MIRROR_MOVE: 'Mimique',
+            SNATCHABLE: 'Saisie',
+            MAGIC_COAT_AFFECTED: 'Reflet Magik',
+            KING_ROCK_UTILITY: "Roche Royale",
+            AFFECTED_BY_GRAVITY: 'Affecté par Gravité',
+            NON_SKY_BATTLE: 'Non utilisable en Combat Aérien'
+        },
+        mechanicalTagNames: {
+            AUTHENTIC: 'Authentique',
+            BALLISTIC: 'Balistique',
+            BITE: 'Morsure',
+            DANCE: 'Danse',
+            PUNCH: 'Poing',
+            SLICE: 'Tranchant',
+            SOUND: 'Son',
+            WIND: 'Vent',
+            PULSE: 'Aura',
+            POWDER: 'Poudre',
+            MENTAL: 'Mental'
+        },
+        statuses: {
+            BURN: 'Brûlure',
+            FREEZE: 'Gel',
+            PARALYSIS: 'Paralysie',
+            POISON: 'Poison',
+            TOXIC: 'Gravement Empoisonné',
+            SLEEP: 'Sommeil',
+            CONFUSION: 'Confusion',
+            FLINCH: 'Peur'
+        }
+    }
+};
 
 /**
- * Fetches and displays move information.
+ * Fetches and displays move information using Components V2.
  * @param {import('discord.js').ChatInputCommandInteraction} interaction
  */
 async function moveInfo(interaction) {
+    const lang = getLanguage(interaction);
+    const t = T[lang];
     const moveName = interaction.options.getString('name');
-    const lang = interaction.options.getString('lang') || interaction.locale;
-    const t = getLocale(lang);
 
     if (!moveName) {
-        return interaction.reply({content: t.missingName, ephemeral: true});
+        return interaction.reply({content: t.missingName, flags: MessageFlags.Ephemeral});
     }
 
     await interaction.deferReply();
 
     try {
-        const response = await fetch(`${baseUrlDataApi}/moves/detail/${moveName}`, {
-            headers: {'Accept-Language': lang},
-        });
+        const response = await fetch(`${baseUrlDataApi}/moves/detail/${moveName}?lang=${lang}`);
 
         if (!response.ok) {
             if (response.status === 404) {
@@ -468,7 +369,6 @@ async function moveInfo(interaction) {
 
     } catch (error) {
         console.error('Error while fetching move:', error);
-        const t = getLocale(lang);
         await interaction.editReply({content: t.error});
     }
 }

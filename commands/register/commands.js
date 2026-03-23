@@ -10,27 +10,24 @@ const {
 const rest = new REST({version: '10'}).setToken(discordToken);
 
 const commands = [
-    new SlashCommandBuilder().setName('commands')
+    new SlashCommandBuilder()
+        .setName('commands')
         .setNameLocalizations({
-            French: 'commandes',
-            SpanishES: 'comandos',
+            fr: 'commandes'
         })
         .setDescription('Displays the list of the application commands.')
         .setDescriptionLocalizations({
-            French: 'Affiche la liste des commandes de l\'application.',
-            SpanishES: 'Muestra la lista de comandos de la aplicación.'
+            fr: 'Affiche la liste des commandes de l\'application.'
         }),
 
     new SlashCommandBuilder()
         .setName('about')
         .setNameLocalizations({
-            French: 'info',
-            SpanishES: 'info',
+            fr: 'a_propos'
         })
         .setDescription('Displays information about the bot.')
         .setDescriptionLocalizations({
-            French: 'Affiche des informations sur le bot.',
-            SpanishES: 'Muestra información sobre el bot.',
+            fr: 'Affiche les informations sur le bot.'
         }),
 ];
 
@@ -38,54 +35,36 @@ const onlineServerApiCommands = [
     new SlashCommandBuilder()
         .setName('players')
         .setNameLocalizations({
-            French: 'joueurs',
-            SpanishES: 'jugadores',
+            fr: 'joueurs'
         })
         .setDescription('Displays the list of players.')
         .setDescriptionLocalizations({
-            French: 'Affiche la liste des joueurs.',
-            SpanishES: 'Muestra la lista de jugadores.',
+            fr: 'Affiche la liste des joueurs.'
         }),
 
     new SlashCommandBuilder()
         .setName('gifts')
         .setNameLocalizations({
-            French: 'cadeaux',
-            SpanishES: 'regalos',
+            fr: 'cadeaux'
         })
         .setDescription('Displays the list of mystery gifts.')
         .setDescriptionLocalizations({
-            French: 'Affiche la liste des cadeaux mystères.',
-            SpanishES: 'Muestra la lista de regalos misteriosos.',
+            fr: 'Affiche la liste des cadeaux mystères.'
         })
         .addStringOption(option =>
             option
                 .setName('type')
                 .setNameLocalizations({
-                    French: 'type',
-                    SpanishES: 'tipo',
+                    fr: 'type'
                 })
                 .setDescription('Type of gifts to display')
                 .setDescriptionLocalizations({
-                    French: 'Type de cadeaux à afficher',
-                    SpanishES: 'Tipo de regalos a mostrar',
+                    fr: 'Type de cadeaux à afficher'
                 })
                 .addChoices(
-                    {
-                        name: 'All',
-                        nameLocalizations: {French: 'Tous', SpanishES: 'Todos'},
-                        value: 'all',
-                    },
-                    {
-                        name: 'Code',
-                        nameLocalizations: {French: 'Code', SpanishES: 'Código'},
-                        value: 'code',
-                    },
-                    {
-                        name: 'Internet',
-                        nameLocalizations: {French: 'Internet', SpanishES: 'Internet'},
-                        value: 'internet',
-                    }
+                    { name: 'All', value: 'all', name_localizations: { fr: 'Tous' } },
+                    { name: 'Code', value: 'code', name_localizations: { fr: 'Code' } },
+                    { name: 'Internet', value: 'internet', name_localizations: { fr: 'Internet' } }
                 )
                 .setRequired(false)
         )
@@ -93,214 +72,156 @@ const onlineServerApiCommands = [
             option
                 .setName('show_all')
                 .setNameLocalizations({
-                    French: 'expiré',
-                    SpanishES: 'todo',
+                    fr: 'tout_afficher'
                 })
                 .setDescription('Display all gifts, including expired ones')
                 .setDescriptionLocalizations({
-                    French: 'Afficher tous les cadeaux, même les périmés',
-                    SpanishES: 'Mostrar todos los regalos, incluso los caducados',
+                    fr: 'Affiche tous les cadeaux, y compris ceux expirés'
                 })
                 .addChoices(
-                    {
-                        name: 'Yes',
-                        nameLocalizations: {French: 'Oui', SpanishES: 'Sí'},
-                        value: 'yes',
-                    },
-                    {
-                        name: 'No',
-                        nameLocalizations: {French: 'Non', SpanishES: 'No'},
-                        value: 'no',
-                    }
+                    { name: 'Yes', value: 'yes', name_localizations: { fr: 'Oui' } },
+                    { name: 'No', value: 'no', name_localizations: { fr: 'Non' } }
                 )
                 .setRequired(false)
         ),
-
-]
+];
 
 const dataApiCommands = [
     new SlashCommandBuilder()
         .setName('pokemon')
         .setNameLocalizations({
-            French: 'pokemon',
-            SpanishES: 'pokemon',
+            fr: 'pokemon'
         })
         .setDescription('Display Pokémon information.')
         .setDescriptionLocalizations({
-            French: 'Affiche les informations sur un Pokémon.',
-            SpanishES: 'Muestra la información de un Pokémon.',
+            fr: 'Affiche les informations d\'un Pokémon.'
         })
         .addStringOption(option =>
             option
                 .setName('name')
+                .setNameLocalizations({
+                    fr: 'nom'
+                })
                 .setDescription('Pokémon name')
                 .setDescriptionLocalizations({
-                    French: 'Nom du Pokémon',
-                    SpanishES: 'Nombre del Pokémon',
+                    fr: 'Nom du Pokémon'
                 })
                 .setRequired(true)
         )
         .addStringOption(option =>
             option
                 .setName('lang')
-                .setDescription('Language of the information')
-                .setDescriptionLocalizations({
-                    French: 'Langue des informations',
-                    SpanishES: 'Idioma de la información',
+                .setNameLocalizations({
+                    fr: 'langue'
                 })
-                .setRequired(false)
+                .setDescription('Language for the response')
+                .setDescriptionLocalizations({
+                    fr: 'Langue de la réponse'
+                })
                 .addChoices(
-                    {name: 'Français', value: 'fr'},
-                    {name: 'Anglais', value: 'en'},
-                    {name: 'Español', value: 'es'},
+                    { name: 'English', value: 'en' },
+                    { name: 'Français', value: 'fr' }
                 )
+                .setRequired(false)
         ),
 
     new SlashCommandBuilder()
         .setName("move")
         .setNameLocalizations({
-            French: 'capacité',
-            SpanishES: 'movimiento',
+            fr: 'capacite'
         })
         .setDescription("Display Move information.")
         .setDescriptionLocalizations({
-            French: 'Affiche les informations sur une capacité.',
-            SpanishES: 'Muestra la información de un movimiento.',
+            fr: 'Affiche les informations d\'une capacité.'
         })
         .addStringOption(option =>
             option
                 .setName('name')
+                .setNameLocalizations({
+                    fr: 'nom'
+                })
                 .setDescription('Move name')
                 .setDescriptionLocalizations({
-                    French: 'Nom de la capacité',
-                    SpanishES: 'Nombre del movimiento',
+                    fr: 'Nom de la capacité'
                 })
                 .setRequired(true)
         )
         .addStringOption(option =>
             option
                 .setName('lang')
-                .setDescription('Language of the information')
-                .setDescriptionLocalizations({
-                    French: 'Langue des informations',
-                    SpanishES: 'Idioma de la información',
+                .setNameLocalizations({
+                    fr: 'langue'
                 })
-                .setRequired(false)
+                .setDescription('Language for the response')
+                .setDescriptionLocalizations({
+                    fr: 'Langue de la réponse'
+                })
                 .addChoices(
-                    {name: 'Français', value: 'fr'},
-                    {name: 'Anglais', value: 'en'},
-                    {name: 'Español', value: 'es'},
+                    { name: 'English', value: 'en' },
+                    { name: 'Français', value: 'fr' }
                 )
+                .setRequired(false)
         ),
 
     new SlashCommandBuilder()
         .setName("type")
         .setNameLocalizations({
-            French: 'type',
-            SpanishES: 'tipo',
+            fr: 'type'
         })
         .setDescription("Display Type information.")
         .setDescriptionLocalizations({
-            French: 'Affiche les informations sur un type.',
-            SpanishES: 'Muestra la información de un tipo.',
+            fr: 'Affiche les informations d\'un type.'
         })
         .addStringOption(option =>
             option
                 .setName('name')
+                .setNameLocalizations({
+                    fr: 'nom'
+                })
                 .setDescription('Type name')
                 .setDescriptionLocalizations({
-                    French: 'Nom du type',
-                    SpanishES: 'Nombre del tipo',
+                    fr: 'Nom du type'
                 })
                 .setRequired(true)
         )
         .addStringOption(option =>
             option
                 .setName('lang')
-                .setDescription('Language of the information')
-                .setDescriptionLocalizations({
-                    French: 'Langue des informations',
-                    SpanishES: 'Idioma de la información',
+                .setNameLocalizations({
+                    fr: 'langue'
                 })
-                .setRequired(false)
+                .setDescription('Language for the response')
+                .setDescriptionLocalizations({
+                    fr: 'Langue de la réponse'
+                })
                 .addChoices(
-                    {name: 'Français', value: 'fr'},
-                    {name: 'Anglais', value: 'en'},
-                    {name: 'Español', value: 'es'},
+                    { name: 'English', value: 'en' },
+                    { name: 'Français', value: 'fr' }
                 )
+                .setRequired(false)
         ),
 ];
 
 if (baseUrlOnlineServerAPI) {
-    for (const command of onlineServerApiCommands) {
-        commands.push(command)
-    }
+    commands.push(...onlineServerApiCommands);
 }
 if (baseUrlDataApi) {
-    for (const command of dataApiCommands) {
-        commands.push(command)
-    }
+    commands.push(...dataApiCommands);
 }
 
-commands.map(command => command.toJSON());
+const commandsJSON = commands.map(command => command.toJSON());
 
-/**
- * Registers slash commands for the bot.
- * @param {string} clientId - The client ID of the bot.
- */
 async function registerCommands(clientId) {
     try {
         logInteraction('Registering Slash commands...');
         await rest.put(
             Routes.applicationCommands(clientId),
-            {body: commands}
+            {body: commandsJSON}
         );
-        logInteraction('Slash commands done.');
-    } catch (error) {
-        console.log('Error while registering Slash commands :', error);
+        logInteraction('Slash commands registered successfully.');
+    } catch (error) { 
+        console.error('Error while registering Slash commands:', error);
     }
 }
 
-/**
- * UNUSED - Deletes Slash commands for the bot.
- * @param {string[]} commandNames - List of Slash command names to delete.
- */
-async function deleteCommands(commandNames) {
-    try {
-        for (const commandName of commandNames) {
-            const commandId = getCommandIdByName(commandName);
-            if (commandId) {
-                await rest.delete(Routes.applicationCommand(discordClientId, commandId));
-                logInteraction(`Deleted command : ${commandName}`);
-            } else {
-                logInteraction(`Command not found : ${commandName}`);
-            }
-        }
-    } catch (error) {
-        console.log('Error while deleting commands :', error);
-    }
-}
-
-/**
- * UNUSED - Returns the ID of the registered command with the given name.
- * @param {string} commandName - The name of the command.
- * @returns {string} The ID of the command or null if not found.
- */
-async function getCommandIdByName(commandName) {
-    try {
-        const registeredCommands = await rest.get(
-            Routes.applicationCommands(discordClientId)
-        );
-        const command = registeredCommands.find(c => c.name === commandName);
-        if (command) {
-            return command.id;
-        } else {
-            throw new Error(`Command '${commandName}' not found.`);
-        }
-    } catch (error) {
-        console.error('Error fetching command :', error);
-        throw error;
-    }
-}
-
-module.exports = {commands, registerCommands, getCommandIdByName, deleteCommands};
+module.exports = {commands, registerCommands};

@@ -1,34 +1,34 @@
-const {EmbedBuilder} = require('discord.js');
+const {ContainerBuilder, SectionBuilder, TextDisplayBuilder} = require('discord.js');
 const {logInteraction} = require('../tools/log');
-const {botName, urlFooterIcon, embedColor} = require('../tools/settings');
+const {embedColor} = require('../tools/settings');
+const {getLanguage} = require('../tools/language');
 
 /**
- * Displays a list of available commands in Discord as an embed message.
- * @param {object} interaction - The interaction object from Discord.js, used to reply or edit messages.
- * @param {object} client - The Discord client object.
- * @returns {EmbedBuilder} The embed message to send.
+ * Displays a list of available commands using Components V2.
+ * @param {object} interaction - The interaction object from Discord.js.
+ * @returns {ContainerBuilder} The container to send.
  */
-async function commandsList(interaction, client) {
-    logInteraction('Commands list command', interaction, client, true);
+async function commandsList(interaction) {
+    logInteraction('Commands list command', interaction, interaction.client, true);
 
+    const lang = getLanguage(interaction);
     const commands = await interaction.client.application.commands.fetch();
-    const embed = new EmbedBuilder()
-        .setColor(embedColor)
-        .setTitle('Available commands')
-        .setFooter({
-            text: botName,
-            iconURL: urlFooterIcon
-        })
-        .setTimestamp();
+    const container = new ContainerBuilder()
+        .setAccentColor(embedColor);
+
+    const section = new SectionBuilder();
 
     commands.forEach(command => {
-        embed.addFields({
-            name: `</${command.name}:${command.id}>`,
-            value: `${command.description}`,
-        });
+        // Use localized description if available
+        const description = command.descriptionLocalizations?.[lang] || command.description;
+        section.addTextDisplayComponents(
+            new TextDisplayBuilder({content: `</${command.name}:${command.id}> - ${description}`})
+        );
     });
 
-    return embed;
+    container.addSectionComponents(section);
+
+    return container;
 }
 
 module.exports = {commandsList};
