@@ -1,4 +1,4 @@
-const {ContainerBuilder, SectionBuilder, TextDisplayBuilder, MessageFlags} = require('discord.js');
+const {ContainerBuilder, TextDisplayBuilder, MessageFlags} = require('discord.js');
 const {embedColor, logsChannelName, botName} = require('../tools/settings');
 
 /**
@@ -37,14 +37,11 @@ async function logInteraction(message, interaction = null, client = null, warn =
         const container = new ContainerBuilder()
             .setAccentColor(embedColor);
 
-        const section = new SectionBuilder();
-        section.addTextDisplayComponents(
+        container.addTextDisplayComponents(
             new TextDisplayBuilder({ content: `📜 **${botName} Log**` }),
             new TextDisplayBuilder({ content: `📄 **Message**: ${message}` }),
             new TextDisplayBuilder({ content: `🔍 **Details**:\n${userInfoMessage}` })
         );
-
-        container.addSectionComponents(section);
 
         const logChannel = client.channels.cache.find(ch => ch.name === logsChannelName);
 

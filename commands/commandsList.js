@@ -1,4 +1,4 @@
-const {ContainerBuilder, SectionBuilder, TextDisplayBuilder} = require('discord.js');
+const {ContainerBuilder, TextDisplayBuilder} = require('discord.js');
 const {logInteraction} = require('../tools/log');
 const {embedColor} = require('../tools/settings');
 const {getLanguage} = require('../tools/language');
@@ -16,17 +16,13 @@ async function commandsList(interaction) {
     const container = new ContainerBuilder()
         .setAccentColor(embedColor);
 
-    const section = new SectionBuilder();
-
     commands.forEach(command => {
         // Use localized description if available
         const description = command.descriptionLocalizations?.[lang] || command.description;
-        section.addTextDisplayComponents(
+        container.addTextDisplayComponents(
             new TextDisplayBuilder({content: `</${command.name}:${command.id}> - ${description}`})
         );
     });
-
-    container.addSectionComponents(section);
 
     return container;
 }

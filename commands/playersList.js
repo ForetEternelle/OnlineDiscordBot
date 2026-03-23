@@ -1,5 +1,5 @@
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-const {ContainerBuilder, SectionBuilder, TextDisplayBuilder, MessageFlags} = require('discord.js');
+const {ContainerBuilder, TextDisplayBuilder, MessageFlags} = require('discord.js');
 const {formatDate} = require('../tools/date');
 const {logInteraction} = require('../tools/log');
 const {
@@ -63,12 +63,9 @@ async function playersList(interaction, client) {
             const container = new ContainerBuilder()
                 .setAccentColor(embedColor);
 
-            const section = new SectionBuilder()
-                .addTextDisplayComponents(
-                    new TextDisplayBuilder({content: playerList || t.noPlayers})
-                );
-
-            container.addSectionComponents(section);
+            container.addTextDisplayComponents(
+                new TextDisplayBuilder({content: playerList || t.noPlayers})
+            );
 
             await interaction.editReply({
                 flags: MessageFlags.IsComponentsV2,

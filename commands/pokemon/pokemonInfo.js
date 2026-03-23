@@ -221,7 +221,11 @@ async function pokemonInfo(interaction) {
         if (mainForm.abilities && mainForm.abilities.length > 0) {
             container.addSeparatorComponents(new SeparatorBuilder());
             const abilitiesRows = new ActionRowBuilder();
-            mainForm.abilities.forEach((ability, index) => {
+            // Remove duplicates from abilities array with name as key
+            mainForm.abilities.filter((ability, index, self) => {
+                return index === self.findIndex(a => a.name === ability.name);
+            })
+                .forEach((ability, index) => {
                 abilitiesRows.addComponents(
                     new ButtonBuilder()
                         .setLabel(formatName(ability.name))
