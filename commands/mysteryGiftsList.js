@@ -10,7 +10,7 @@ const {
 } = require('discord.js');
 const {formatDate} = require('../tools/date');
 const {logInteraction} = require('../tools/log');
-const {baseUrlOnlineServerAPI} = require('../tools/settings');
+const {baseUrlOnlineServerAPI, onlineServerBearerToken} = require('../tools/settings');
 
 async function mysteryGiftsList(interaction, client) {
     logInteraction('Mystery gifts command', interaction, client, true);
@@ -18,7 +18,7 @@ async function mysteryGiftsList(interaction, client) {
 
     try {
         const response = await axios.get(`${baseUrlOnlineServerAPI}/gift`, {
-            headers: {authorization: process.env.BEARER}
+            headers: {authorization: onlineServerBearerToken}
         });
 
         if (!response.data.success) throw new Error('API response indicates failure');

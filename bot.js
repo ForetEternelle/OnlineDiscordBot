@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const {Client} = require('discord.js');
 
-const {intents} = require('./tools/settings');
+const {intents, discordClientId, discordToken} = require('./tools/settings');
 const {registerCommands} = require('./commands/register/commands');
 
 const readyEvent = require('./events/ready');
@@ -13,10 +13,10 @@ const client = new Client({
 });
 
 (async () => {
-    await registerCommands(process.env.CLIENT_ID);
+    await registerCommands(discordClientId);
 })();
 
 client.once(readyEvent.name, () => readyEvent.execute(client));
 client.on(interactionCreateEvent.name, (...args) => interactionCreateEvent.execute(...args, client));
 
-client.login(process.env.TOKEN);
+client.login(discordToken);

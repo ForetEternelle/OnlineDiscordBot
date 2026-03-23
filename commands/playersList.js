@@ -2,7 +2,14 @@ const axios = require('axios');
 const {EmbedBuilder} = require('discord.js');
 const {formatDate} = require('../tools/date');
 const {logInteraction} = require('../tools/log');
-const {botName, urlFooterIcon, embedColor, errorEmbedColor, baseUrlOnlineServerAPI} = require('../tools/settings');
+const {
+    botName,
+    urlFooterIcon,
+    embedColor,
+    errorEmbedColor,
+    baseUrlOnlineServerAPI,
+    onlineServerBearerToken
+} = require('../tools/settings');
 
 /**
  * Fetches and displays a list of players in Discord as an embed message.
@@ -15,7 +22,7 @@ async function playersList(interaction, client) {
     try {
         const response = await axios.get(`${baseUrlOnlineServerAPI}/player`, {
             headers: {
-                authorization: process.env.BEARER
+                authorization: onlineServerBearerToken
             }
         });
         if (response.data.success) {

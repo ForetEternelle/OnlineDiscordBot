@@ -4,13 +4,14 @@ services:
     container_name: discord-bot-v2
     environment:
       NODE_ENV: ${NODE_ENV}
-      TOKEN: ${TOKEN}
-      CLIENT_ID: ${CLIENT_ID}
-      BEARER: ${BEARER}
-      ONLINE_SERVER_URL: ${ONLINE_SERVER_URL}
-      BASE_URL_DATA_API: ${BASE_URL_DATA_API}
-      IMAGE_URL: ${IMAGE_URL}
-      BOT_VERSION: ${BOT_VERSION}
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
+      ONLINE_SERVER_BEARER_TOKEN: ${ONLINE_SERVER_BEARER_TOKEN}
+      ONLINE_SERVER_API_URL: ${ONLINE_SERVER_API_URL}
+      DATA_API_BASE_URL: ${DATA_API_BASE_URL}
+      POKEMON_IMAGE_BASE_URL: ${POKEMON_IMAGE_BASE_URL}
+      DISCORD_BOT_NAME: ${DISCORD_BOT_NAME}
+      DISCORD_BOT_VERSION: ${DISCORD_BOT_VERSION}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "process.exit(0)"]

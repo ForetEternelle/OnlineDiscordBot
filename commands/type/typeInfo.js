@@ -6,7 +6,7 @@ const {
     Colors
 } = require('discord.js');
 const {logInteraction} = require('../../tools/log');
-const {baseUrlDataApi} = require('../../tools/settings');
+const {baseUrlDataApi, onlineServerBearerToken} = require('../../tools/settings');
 
 /**
  * Simple localization system for text labels.
@@ -67,7 +67,7 @@ async function typeInfo(interaction) {
     try {
         const response = await fetch(`${baseUrlDataApi}/types/${typeName.toLowerCase()}`, {
             headers: {
-                authorization: process.env.BEARER,
+                authorization: onlineServerBearerToken,
                 'Accept-Language': lang
             },
         });

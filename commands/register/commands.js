@@ -1,9 +1,13 @@
 const {REST, Routes, SlashCommandBuilder} = require('discord.js');
 const {logInteraction} = require('../../tools/log');
-const {baseUrlOnlineServerAPI, baseUrlDataApi} = require('../../tools/settings');
+const {
+    baseUrlOnlineServerAPI,
+    baseUrlDataApi,
+    discordToken,
+    discordClientId
+} = require('../../tools/settings');
 
-const token = process.env.TOKEN;
-const rest = new REST({version: '10'}).setToken(token);
+const rest = new REST({version: '10'}).setToken(discordToken);
 
 const commands = [
     new SlashCommandBuilder().setName('commands')
@@ -266,7 +270,7 @@ async function deleteCommands(commandNames) {
         for (const commandName of commandNames) {
             const commandId = getCommandIdByName(commandName);
             if (commandId) {
-                await rest.delete(Routes.applicationCommand(process.env.CLIENT_ID, commandId));
+                await rest.delete(Routes.applicationCommand(discordClientId, commandId));
                 logInteraction(`Deleted command : ${commandName}`);
             } else {
                 logInteraction(`Command not found : ${commandName}`);
@@ -285,7 +289,7 @@ async function deleteCommands(commandNames) {
 async function getCommandIdByName(commandName) {
     try {
         const registeredCommands = await rest.get(
-            Routes.applicationCommands(process.env.CLIENT_ID)
+            Routes.applicationCommands(discordClientId)
         );
         const command = registeredCommands.find(c => c.name === commandName);
         if (command) {

@@ -1,6 +1,6 @@
 const {EmbedBuilder} = require('discord.js');
 const {logInteraction} = require('../tools/log');
-const {botName, urlFooterIcon, embedColor} = require('../tools/settings');
+const {botName, botVersion, urlFooterIcon, embedColor} = require('../tools/settings');
 
 /**
  * Displays informations about the bot, including its ping, uptime, and version.
@@ -35,7 +35,7 @@ async function showABout(interaction, client) {
             },
             {
                 name: 'Version',
-                value: `${process.env.BOT_VERSION}`,
+                value: `${botVersion}`,
                 inline: true
             }
         )

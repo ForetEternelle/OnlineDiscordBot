@@ -6,7 +6,7 @@ const {
     Colors
 } = require('discord.js');
 const { formatDate } = require('../tools/date');
-const { baseUrlOnlineServerAPI } = require('../tools/settings');
+const { baseUrlOnlineServerAPI, onlineServerBearerToken } = require('../tools/settings');
 
 async function handleGiftShow(interaction) {
     const giftId = interaction.customId.replace('gift_show_', '');
@@ -15,7 +15,7 @@ async function handleGiftShow(interaction) {
 
     try {
         const response = await axios.get(`${baseUrlOnlineServerAPI}/gift/${giftId}`, {
-            headers: { authorization: process.env.BEARER }
+            headers: { authorization: onlineServerBearerToken }
         });
 
         if (!response.data.success || !response.data.gift)

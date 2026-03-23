@@ -27,18 +27,24 @@ cd OnlineDiscordBot
 
 ### 2. Create the `.env` file
 
-In the root folder of the project, create a `.env` file to store your bot's credentials. The file should look like this:
+In the root folder of the project, create a `.env` file to store your bot's credentials and API URLs. The file should look like this:
 
 ```plaintext
-TOKEN=<your-bot-token>
-CLIENT_ID=<your-bot-client-id>
-BEARER=<your-bearer-token>
-BOT_VERSION=1.0
+DISCORD_BOT_NAME='PSDK Bot'
+DISCORD_BOT_VERSION=1.0
+DISCORD_TOKEN=<your-bot-token>
+DISCORD_CLIENT_ID=<your-bot-client-id>
+ONLINE_SERVER_BEARER_TOKEN=<your-bearer-token>
+ONLINE_SERVER_API_URL=<online-server-api-url>
+DATA_API_BASE_URL=<data-api-base-url>
+POKEMON_IMAGE_BASE_URL=<pokemon-image-base-url>
 ```
 
-Replace `<your-bot-token>`, `<your-bot-client-id>`, and `<your-bearer-token>` with your actual values.
+Replace placeholders with your actual values.
 The token & client id are from the [Discord Developer Portal](https://discord.com/developers/applications), and the
 bearer token is provided by the [Online Server](https://github.com/PokemonWorkshop/OnlineServer).
+
+You can copy [`.env.example`](.env.example) and fill in each value.
 
 ### 3. Install dependencies
 
