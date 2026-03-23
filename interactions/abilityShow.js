@@ -2,7 +2,6 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const {
     MessageFlags,
     ContainerBuilder,
-    SectionBuilder,
     TextDisplayBuilder,
     Colors
 } = require('discord.js');
@@ -48,13 +47,10 @@ async function handleAbilityShow(interaction) {
         const container = new ContainerBuilder()
             .setAccentColor(Colors.Blue);
 
-        const section = new SectionBuilder();
-        section.addTextDisplayComponents(
+        container.addTextDisplayComponents(
             new TextDisplayBuilder({ content: `# **${ability.name}**` }),
             new TextDisplayBuilder({ content: `${ability.description}` }),
         );
-
-        container.addSectionComponents(section);
 
         await interaction.editReply({
             flags: MessageFlags.IsComponentsV2,

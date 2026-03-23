@@ -1,4 +1,4 @@
-const {ContainerBuilder, SectionBuilder, TextDisplayBuilder} = require('discord.js');
+const {ContainerBuilder, TextDisplayBuilder} = require('discord.js');
 const {logInteraction} = require('../tools/log');
 const {botName, botVersion, embedColor} = require('../tools/settings');
 const {getLanguage} = require('../tools/language');
@@ -41,15 +41,12 @@ async function showABout(interaction, client) {
     const container = new ContainerBuilder()
         .setAccentColor(embedColor);
 
-    const section = new SectionBuilder()
-        .addTextDisplayComponents(
-            new TextDisplayBuilder({content: t.title}),
-            new TextDisplayBuilder({content: t.ping}),
-            new TextDisplayBuilder({content: t.uptime}),
-            new TextDisplayBuilder({content: t.version})
-        );
-
-    container.addSectionComponents(section);
+    container.addTextDisplayComponents(
+        new TextDisplayBuilder({content: t.title}),
+        new TextDisplayBuilder({content: t.ping}),
+        new TextDisplayBuilder({content: t.uptime}),
+        new TextDisplayBuilder({content: t.version})
+    );
 
     return container;
 }

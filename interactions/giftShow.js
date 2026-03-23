@@ -2,7 +2,6 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const {
     MessageFlags,
     ContainerBuilder,
-    SectionBuilder,
     TextDisplayBuilder,
     Colors
 } = require('discord.js');
@@ -64,13 +63,12 @@ async function handleGiftShow(interaction) {
         const color = isActive ? Colors.Green : Colors.Red;
 
         const container = new ContainerBuilder().setAccentColor(color);
-        const section = new SectionBuilder();
 
         const dateInfo = hasDates
             ? `📅 ${formatDate(gift.validFrom)} → ${formatDate(gift.validTo)}`
             : t.permanent;
 
-        section.addTextDisplayComponents(
+        container.addTextDisplayComponents(
             new TextDisplayBuilder({ content: `🎁 **${gift.title}**` }),
             new TextDisplayBuilder({ content: `➡️ **${t.code}:** ${gift.code || t.claim}` }),
             new TextDisplayBuilder({ content: dateInfo }),
@@ -85,8 +83,6 @@ async function handleGiftShow(interaction) {
                     : t.noPokemon,
             })
         );
-
-        container.addSectionComponents(section);
 
         await interaction.editReply({
             flags: MessageFlags.IsComponentsV2,

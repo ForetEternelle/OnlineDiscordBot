@@ -2,9 +2,7 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const {
     MessageFlags,
     ContainerBuilder,
-    SectionBuilder,
     TextDisplayBuilder,
-    SeparatorBuilder,
     Colors
 } = require('discord.js');
 const {logInteraction} = require('../tools/log');
@@ -48,10 +46,9 @@ async function handleTypeShow(interaction) {
 
         const color = type.color ? parseInt(type.color.slice(1), 16) : Colors.Blurple;
         const container = new ContainerBuilder().setAccentColor(color);
-        const section = new SectionBuilder();
 
-        // Type title
-        section.addTextDisplayComponents(
+        // Type title and data
+        container.addTextDisplayComponents(
             new TextDisplayBuilder({ content: `# **${type.name}**` })
         );
 
@@ -64,7 +61,7 @@ async function handleTypeShow(interaction) {
                 const weaknessesText = weaknesses
                     .map(td => `- **${td.defensiveType}** ×${td.factor}`)
                     .join('\n');
-                section.addTextDisplayComponents(
+                container.addTextDisplayComponents(
                     new TextDisplayBuilder({
                         content: `**${t.weaknesses}:**\n${weaknessesText}`
                     })
@@ -75,19 +72,17 @@ async function handleTypeShow(interaction) {
                 const resistancesText = resistances
                     .map(td => `- **${td.defensiveType}** ×${td.factor}`)
                     .join('\n');
-                section.addTextDisplayComponents(
+                container.addTextDisplayComponents(
                     new TextDisplayBuilder({
                         content: `**${t.resistances}:**\n${resistancesText}`
                     })
                 );
             }
         } else {
-            section.addTextDisplayComponents(
+            container.addTextDisplayComponents(
                 new TextDisplayBuilder({ content: t.noData })
             );
         }
-
-        container.addSectionComponents(section);
 
         await interaction.editReply({
             flags: MessageFlags.IsComponentsV2,

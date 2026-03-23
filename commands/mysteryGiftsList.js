@@ -2,7 +2,6 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const {
     MessageFlags,
     ContainerBuilder,
-    SectionBuilder,
     TextDisplayBuilder,
     ButtonBuilder,
     ButtonStyle,
@@ -94,20 +93,19 @@ async function mysteryGiftsList(interaction, client) {
             const container = new ContainerBuilder()
                 .setAccentColor(color);
 
-            const section = new SectionBuilder()
-                .addTextDisplayComponents(
-                    new TextDisplayBuilder({content: `🎁 **${gift.title}**`}),
-                    new TextDisplayBuilder({content: `➡️ Code: **${gift.code || t.claim}**`}),
-                    new TextDisplayBuilder({content: dateInfo})
-                )
-                .setButtonAccessory(
-                    new ButtonBuilder()
-                        .setLabel(t.viewContents)
-                        .setStyle(ButtonStyle.Primary)
-                        .setCustomId(`gift_show_${gift.id}&lang=${lang}`)
-                );
+            container.addTextDisplayComponents(
+                new TextDisplayBuilder({content: `🎁 **${gift.title}**`}),
+                new TextDisplayBuilder({content: `➡️ Code: **${gift.code || t.claim}**`}),
+                new TextDisplayBuilder({content: dateInfo})
+            );
 
-            container.addSectionComponents(section);
+            container.setButtonAccessory(
+                new ButtonBuilder()
+                    .setLabel(t.viewContents)
+                    .setStyle(ButtonStyle.Primary)
+                    .setCustomId(`gift_show_${gift.id}&lang=${lang}`)
+            );
+
             return container;
         });
 

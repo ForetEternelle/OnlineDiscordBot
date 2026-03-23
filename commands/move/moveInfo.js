@@ -2,7 +2,6 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const {
     MessageFlags,
     ContainerBuilder,
-    SectionBuilder,
     TextDisplayBuilder,
     SeparatorBuilder,
     Colors
@@ -223,7 +222,7 @@ const T = {
 async function moveInfo(interaction) {
     const lang = getLanguage(interaction);
     const t = T[lang];
-    const moveName = interaction.options.getString('name');
+    const moveName = formatMoveEntry(interaction.options.getString('name'));
 
     if (!moveName) {
         return interaction.reply({content: t.missingName, flags: MessageFlags.Ephemeral});
@@ -371,6 +370,11 @@ async function moveInfo(interaction) {
         console.error('Error while fetching move:', error);
         await interaction.editReply({content: t.error});
     }
+}
+
+function formatMoveEntry(moveName) {
+    return moveName.replace(/ /g, '_')
+        .replace(/\b\w/g, char => char.toLowerCase());
 }
 
 module.exports = {moveInfo};
