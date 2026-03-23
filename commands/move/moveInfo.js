@@ -219,7 +219,7 @@ const T = {
  * Fetches and displays move information using Components V2.
  * @param {import('discord.js').ChatInputCommandInteraction} interaction
  */
-async function moveInfo(interaction) {
+async function moveInfo(interaction, client) {
     const lang = getLanguage(interaction);
     const t = T[lang];
     const moveName = formatMoveEntry(interaction.options.getString('name'));

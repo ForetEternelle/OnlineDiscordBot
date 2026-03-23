@@ -14,6 +14,7 @@ const {
 
 
 const {baseUrlDataApi, pokemonImageBaseUrl} = require('../../tools/settings');
+const { logInteraction } = require('../../tools/log');
 const {getLanguage} = require('../../tools/language');
 
 /**
@@ -130,7 +131,7 @@ const T = {
  * Fetches and displays Pokémon information using Components V2.
  * @param {import('discord.js').ChatInputCommandInteraction} interaction
  */
-async function pokemonInfo(interaction) {
+async function pokemonInfo(interaction, client) {
     const lang = getLanguage(interaction);
     const t = T[lang];
     const name = interaction.options.getString('name')?.toLowerCase();
@@ -308,6 +309,7 @@ async function pokemonInfo(interaction) {
         });
 
     } catch (error) {
+        await logInteraction('Error in pokemonInfo:', error, client);
         console.error('❌ Error fetching Pokémon data:', error);
         await interaction.editReply({content: t.error});
     }

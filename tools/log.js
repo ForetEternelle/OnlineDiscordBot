@@ -1,5 +1,5 @@
 const {ContainerBuilder, TextDisplayBuilder, MessageFlags} = require('discord.js');
-const {embedColor, logsChannelName, botName} = require('../tools/settings');
+const {embedColor, logsChannelId, botName} = require('../tools/settings');
 
 /**
  * Logs an interaction with the bot in the console and in a channel of the bot named "📰-logs" (set in the settings file).
@@ -43,7 +43,7 @@ async function logInteraction(message, interaction = null, client = null, warn =
             new TextDisplayBuilder({ content: `🔍 **Details**:\n${userInfoMessage}` })
         );
 
-        const logChannel = client.channels.cache.find(ch => ch.name === logsChannelName);
+        const logChannel = client.channels.cache.get(logsChannelId);
 
         if (logChannel) {
             try {
@@ -52,10 +52,10 @@ async function logInteraction(message, interaction = null, client = null, warn =
                     flags: MessageFlags.IsComponentsV2
                 });
             } catch (error) {
-                console.error(`Failed to send log message to channel '${logsChannelName}'. Error:`, error);
+                console.error(`Failed to send log message to channel '${logChannel.name || logsChannelId}'. Error:`, error);
             }
         } else {
-            console.error(`Channel '${logsChannelName}' not found to send the log message.`);
+            console.error(`Channel '${logsChannelId}' not found to send the log message.`);
         }
     }
 }
