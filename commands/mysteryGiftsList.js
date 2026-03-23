@@ -1,4 +1,4 @@
-const axios = require('axios');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const {
     MessageFlags,
     ContainerBuilder,
@@ -11,19 +11,40 @@ const {
 const {formatDate} = require('../tools/date');
 const {logInteraction} = require('../tools/log');
 const {baseUrlOnlineServerAPI, onlineServerBearerToken} = require('../tools/settings');
+const {getLanguage} = require('../tools/language');
 
 async function mysteryGiftsList(interaction, client) {
     logInteraction('Mystery gifts command', interaction, client, true);
-    await interaction.deferReply({flags: MessageFlags.ephemeral});
+    await interaction.deferReply({flags: MessageFlags.Ephemeral});
+
+    const lang = getLanguage(interaction);
+    const labels = {
+        en: {
+            noGifts: '🎁 No Mystery Gifts available at the moment.',
+            viewContents: '🎒 View contents',
+            permanent: '📅 Permanent',
+            error: '❌ Could not retrieve the Mystery Gift list at this time.',
+            claim: '*Claim in-game*'
+        },
+        fr: {
+            noGifts: '🎁 Aucun cadeau mystère disponible pour le moment.',
+            viewContents: '🎒 Voir le contenu',
+            permanent: '📅 Permanent',
+            error: '❌ Impossible de récupérer la liste des cadeaux mystères pour le moment.',
+            claim: '*Récupérer en jeu*'
+        }
+    };
+    const t = labels[lang];
 
     try {
-        const response = await axios.get(`${baseUrlOnlineServerAPI}/gift`, {
+        const response = await fetch(`${baseUrlOnlineServerAPI}/gift?lang=${lang}`, {
             headers: {authorization: onlineServerBearerToken}
         });
+        const data = await response.json();
 
-        if (!response.data.success) throw new Error('API response indicates failure');
+        if (!data.success) throw new Error('API response indicates failure');
 
-        let gifts = response.data.gifts || [];
+        let gifts = data.gifts || [];
 
         const now = new Date();
         gifts = gifts.map(gift => {
@@ -62,13 +83,13 @@ async function mysteryGiftsList(interaction, client) {
         gifts = gifts.slice(0, 5);
 
         if (gifts.length === 0)
-            return interaction.editReply({content: '🎁 Aucun Mystery Gift disponible pour le moment.'});
+            return interaction.editReply({content: t.noGifts});
 
         const containers = gifts.map((gift) => {
             const color = gift.isActive ? Colors.Green : Colors.Red;
             const dateInfo = gift.hasDates
                 ? `📅 ${formatDate(gift.validFrom)} → ${formatDate(gift.validTo)}`
-                : '📅 Permanente';
+                : t.permanent;
 
             const container = new ContainerBuilder()
                 .setAccentColor(color);
@@ -76,14 +97,14 @@ async function mysteryGiftsList(interaction, client) {
             const section = new SectionBuilder()
                 .addTextDisplayComponents(
                     new TextDisplayBuilder({content: `🎁 **${gift.title}**`}),
-                    new TextDisplayBuilder({content: `➡️ Code : **${gift.code || '*À récupérer dans le jeu*'}**`}),
+                    new TextDisplayBuilder({content: `➡️ Code: **${gift.code || t.claim}**`}),
                     new TextDisplayBuilder({content: dateInfo})
                 )
                 .setButtonAccessory(
                     new ButtonBuilder()
-                        .setLabel('🎒 Voir le contenu')
+                        .setLabel(t.viewContents)
                         .setStyle(ButtonStyle.Primary)
-                        .setCustomId(`gift_show_${gift.id}`)
+                        .setCustomId(`gift_show_${gift.id}&lang=${lang}`)
                 );
 
             container.addSectionComponents(section);
@@ -98,7 +119,7 @@ async function mysteryGiftsList(interaction, client) {
     } catch (error) {
         console.error('Error while fetching gifts:', error);
         await interaction.editReply({
-            content: '❌ Impossible de récupérer la liste des Mystery Gifts pour le moment.'
+            content: t.error
         });
     }
 }

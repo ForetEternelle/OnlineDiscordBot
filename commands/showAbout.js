@@ -1,17 +1,19 @@
-const {EmbedBuilder} = require('discord.js');
+const {ContainerBuilder, SectionBuilder, TextDisplayBuilder} = require('discord.js');
 const {logInteraction} = require('../tools/log');
-const {botName, botVersion, urlFooterIcon, embedColor} = require('../tools/settings');
+const {botName, botVersion, embedColor} = require('../tools/settings');
+const {getLanguage} = require('../tools/language');
 
 /**
- * Displays informations about the bot, including its ping, uptime, and version.
- * @param {object} interaction - The interaction object from Discord.js, used to log the command.
- * @param {object} client - The Discord client object, used to get the bot's ping.
- * @returns {EmbedBuilder} The embed message to send.
+ * Displays information about the bot, including its ping, uptime, and version.
+ * @param {object} interaction - The interaction object from Discord.js.
+ * @param {object} client - The Discord client object.
+ * @returns {ContainerBuilder} The container to send.
  */
 async function showABout(interaction, client) {
     logInteraction('About command', interaction, client, true);
 
-    let ping = client.ws.ping;
+    const lang = getLanguage(interaction);
+    const ping = client.ws.ping;
 
     const uptime = process.uptime();
     const days = Math.floor(uptime / 86400).toString().padStart(2, '0');
@@ -19,33 +21,37 @@ async function showABout(interaction, client) {
     const minutes = Math.floor((uptime % 3600) / 60).toString().padStart(2, '0');
     const seconds = Math.floor(uptime % 60).toString().padStart(2, '0');
 
-    const embed = new EmbedBuilder()
-        .setColor(embedColor)
-        .setTitle(`About ${botName}`)
-        .addFields(
-            {
-                name: 'Ping',
-                value: `${ping} ms`,
-                inline: true
-            },
-            {
-                name: 'Uptime',
-                value: `${days}d ${hours}h ${minutes}m ${seconds}s`,
-                inline: true
-            },
-            {
-                name: 'Version',
-                value: `${botVersion}`,
-                inline: true
-            }
-        )
-        .setFooter({
-            text: botName,
-            iconURL: urlFooterIcon
-        })
-        .setTimestamp();
+    const labels = {
+        en: {
+            title: `**About ${botName}**`,
+            ping: `📡 **Ping:** ${ping} ms`,
+            uptime: `⏱️ **Uptime:** ${days}d ${hours}h ${minutes}m ${seconds}s`,
+            version: `🚀 **Version:** ${botVersion}`
+        },
+        fr: {
+            title: `**À propos de ${botName}**`,
+            ping: `📡 **Ping :** ${ping} ms`,
+            uptime: `⏱️ **Uptime :** ${days}j ${hours}h ${minutes}m ${seconds}s`,
+            version: `🚀 **Version :** ${botVersion}`
+        }
+    };
 
-    return embed;
+    const t = labels[lang];
+
+    const container = new ContainerBuilder()
+        .setAccentColor(embedColor);
+
+    const section = new SectionBuilder()
+        .addTextDisplayComponents(
+            new TextDisplayBuilder({content: t.title}),
+            new TextDisplayBuilder({content: t.ping}),
+            new TextDisplayBuilder({content: t.uptime}),
+            new TextDisplayBuilder({content: t.version})
+        );
+
+    container.addSectionComponents(section);
+
+    return container;
 }
 
 module.exports = {showABout};

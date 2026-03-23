@@ -9,6 +9,7 @@ const {typeInfo} = require("../commands/type/typeInfo");
 const {handleGiftShow} = require("../interactions/giftShow");
 const {handleAbilityShow} = require("../interactions/abilityShow");
 const {handleTypeShow} = require("../interactions/typeShow");
+const {getLanguage} = require("../tools/language");
 const {ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, MessageFlags} = require('discord.js');
 
 module.exports = {
@@ -22,15 +23,15 @@ module.exports = {
     async execute(interaction, client) {
         try {
             if (interaction.isCommand()) {
-                let embed = null;
+                let component = null;
                 if (interaction.commandName === 'about') {
-                    embed = await showABout(interaction, client);
+                    component = await showABout(interaction, client);
                 } else if (interaction.commandName === 'commands') {
-                    embed = await commandsList(interaction, client);
+                    component = await commandsList(interaction);
                 } else if (interaction.commandName === 'gifts') {
-                    await mysteryGiftsList(interaction, client); // déjà gère la liste
+                    await mysteryGiftsList(interaction, client);
                 } else if (interaction.commandName === 'players') {
-                    embed = await playersList(interaction, client);
+                    await playersList(interaction, client);
                 } else if (interaction.commandName === 'pokemon') {
                     await pokemonInfo(interaction, client);
                 } else if (interaction.commandName === 'move') {
@@ -38,7 +39,12 @@ module.exports = {
                 } else if (interaction.commandName === 'type') {
                     await typeInfo(interaction);
                 }
-                if (embed) await interaction.reply({ embeds: [embed] });
+                if (component) {
+                    await interaction.reply({
+                        components: [component],
+                        flags: MessageFlags.IsComponentsV2
+                    });
+                }
             }
 
             else if (interaction.isButton()) {
@@ -54,10 +60,20 @@ module.exports = {
         } catch (error) {
             console.error('Error while handling interaction:', error);
             logInteraction('Error in interactionCreate:', error);
-            if (!interaction.replied) {
+            
+            const lang = getLanguage(interaction);
+            const errorMsg = lang === 'fr' 
+                ? "Désolé, une erreur est survenue lors de l'exécution de l'interaction."
+                : "Sorry, an error occurred while executing the interaction.";
+
+            if (!interaction.replied && !interaction.deferred) {
                 await interaction.reply({
-                    content: "Désolé, une erreur s'est produite lors de l'exécution de l'interaction.",
-                    flags: MessageFlags.ephemeral,
+                    content: errorMsg,
+                    flags: MessageFlags.Ephemeral,
+                });
+            } else if (interaction.deferred) {
+                await interaction.editReply({
+                    content: errorMsg,
                 });
             }
         }

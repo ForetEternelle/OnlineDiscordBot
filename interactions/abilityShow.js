@@ -1,6 +1,8 @@
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const {
     MessageFlags,
     ContainerBuilder,
+    SectionBuilder,
     TextDisplayBuilder,
     Colors
 } = require('discord.js');
@@ -8,14 +10,27 @@ const { logInteraction } = require('../tools/log');
 const { baseUrlDataApi, onlineServerBearerToken } = require('../tools/settings');
 
 async function handleAbilityShow(interaction) {
-    const abilityId = interaction.customId.split('&')[0].replace('ability_', '');
-    const lang = interaction.locale || 'en';
+    const customId = interaction.customId;
+    const abilityId = customId.split('&')[0].replace('ability_', '');
+    const lang = customId.includes('lang=') ? customId.split('lang=')[1].split('&')[0] : 'en';
 
-    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+    const labels = {
+        en: {
+            unable: '⚠️ Unable to retrieve this ability.',
+            error: "⚠️ An error occurred while retrieving this ability."
+        },
+        fr: {
+            unable: '⚠️ Impossible de récupérer ce talent.',
+            error: "⚠️ Une erreur est survenue lors de la récupération de ce talent."
+        }
+    };
+    const t = labels[lang];
 
     try {
         const response = await fetch(
-            `${baseUrlDataApi}/abilities/${abilityId}?lang=${encodeURIComponent(lang.toString())}`,
+            `${baseUrlDataApi}/abilities/${abilityId}?lang=${lang}`,
             {
                 headers: {
                     authorization: onlineServerBearerToken
@@ -27,32 +42,31 @@ async function handleAbilityShow(interaction) {
 
         const ability = await response.json();
         if (!ability || !ability.symbol) {
-            return interaction.editReply({ content: '⚠️ Impossible de récupérer cette capacité.' });
+            return interaction.editReply({ content: t.unable });
         }
 
-        // 2. Construction du composant V2
         const container = new ContainerBuilder()
             .setAccentColor(Colors.Blue);
 
-        container.addTextDisplayComponents(
+        const section = new SectionBuilder();
+        section.addTextDisplayComponents(
             new TextDisplayBuilder({ content: `# **${ability.name}**` }),
             new TextDisplayBuilder({ content: `${ability.description}` }),
         );
 
-        // 3. Envoi de la réponse avec le flag IsComponentsV2
+        container.addSectionComponents(section);
+
         await interaction.editReply({
-            // On s'assure que les flags incluent bien le support V2
-            flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
+            flags: MessageFlags.IsComponentsV2,
             components: [container]
         });
 
     } catch (error) {
-        console.error('Error while fetching ability :', error);
+        console.error('Error while fetching ability:', error);
         logInteraction('Error in handleAbilityShow:', error);
 
-        // Pas besoin de flags ici, le deferReply a déjà fixé le canal éphémère
         await interaction.editReply({
-            content: "⚠️ Une erreur s'est produite lors de la récupération de cette capacité."
+            content: t.error
         });
     }
 }

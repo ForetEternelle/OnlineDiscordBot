@@ -19,13 +19,8 @@ const onlineServerBearerToken = getEnv('ONLINE_SERVER_BEARER_TOKEN', ['BEARER'])
 const baseUrlOnlineServerAPI = getEnv('ONLINE_SERVER_API_URL', ['ONLINE_SERVER_URL']);
 const baseUrlDataApi = getEnv('DATA_API_BASE_URL', ['BASE_URL_DATA_API']);
 const pokemonImageBaseUrl = getEnv('POKEMON_IMAGE_BASE_URL', ['IMAGE_URL']);
-// URL of the icon to display in the footer of the messages
-const urlFooterIcon = 'https://pokemonworkshop.com/media/assets/assets/2915011424-1665083029/logo-50x50.webp';
-
 // Color of the messages
 const embedColor = 0x345C6D;
-// Color of the error messages
-const errorEmbedColor = 0xFF0000;
 // Name of the logs channel
 const logsChannelName = '📰-logs';
 
@@ -43,9 +38,7 @@ module.exports = {
     baseUrlOnlineServerAPI,
     baseUrlDataApi,
     pokemonImageBaseUrl,
-    urlFooterIcon,
     embedColor,
-    errorEmbedColor,
     logsChannelName,
     intents
 };

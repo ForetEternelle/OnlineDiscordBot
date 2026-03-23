@@ -1,66 +1,88 @@
-const axios = require('axios');
-const {EmbedBuilder} = require('discord.js');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const {ContainerBuilder, SectionBuilder, TextDisplayBuilder, MessageFlags} = require('discord.js');
 const {formatDate} = require('../tools/date');
 const {logInteraction} = require('../tools/log');
 const {
-    botName,
-    urlFooterIcon,
     embedColor,
-    errorEmbedColor,
     baseUrlOnlineServerAPI,
     onlineServerBearerToken
 } = require('../tools/settings');
+const {getLanguage} = require('../tools/language');
 
 /**
- * Fetches and displays a list of players in Discord as an embed message.
+ * Fetches and displays a list of players in Discord using Components V2.
  * @param {object} interaction - The interaction object from Discord.js, used to reply or edit messages.
  * @param {object} client - The Discord client object.
  */
 async function playersList(interaction, client) {
     logInteraction('Players list command', interaction, client, true);
+    await interaction.deferReply({flags: MessageFlags.Ephemeral});
+
+    const lang = getLanguage(interaction);
+    const labels = {
+        en: {
+            online: '🟢 Online',
+            offline: '🔴 Offline',
+            friendCode: 'Friend code',
+            lastSeen: 'Last seen',
+            noPlayers: 'No players found.',
+            error: '❌ Unable to retrieve the list of players. Please try again later.'
+        },
+        fr: {
+            online: '🟢 En ligne',
+            offline: '🔴 Hors ligne',
+            friendCode: 'Code ami',
+            lastSeen: 'Dernière fois vu',
+            noPlayers: 'Aucun joueur trouvé.',
+            error: '❌ Impossible de récupérer la liste des joueurs. Veuillez réessayer plus tard.'
+        }
+    };
+    const t = labels[lang];
 
     try {
-        const response = await axios.get(`${baseUrlOnlineServerAPI}/player`, {
+        const response = await fetch(`${baseUrlOnlineServerAPI}/player?lang=${lang}`, {
             headers: {
                 authorization: onlineServerBearerToken
             }
         });
-        if (response.data.success) {
-            const players = response.data.players;
+        const data = await response.json();
+
+        if (data.success) {
+            const players = data.players;
 
             const playerList = players.map((player) => {
-                const status = player.isOnline ? '🟢 Online' : '🔴 Offline';
+                const status = player.isOnline ? t.online : t.offline;
                 const friendCode = player.friendCode || 'N/A';
 
                 return `**${player.playerName}**\n` +
                     `${status}\n` +
-                    `📋 **Friend code** : ${friendCode}\n` +
-                    `📅 **Last seen** : ${formatDate(player.lastConnection)}`;
+                    `📋 **${t.friendCode}**: ${friendCode}\n` +
+                    `📅 **${t.lastSeen}**: ${formatDate(player.lastConnection)}`;
             }).join('\n\n');
 
-            const embed = new EmbedBuilder()
-                .setColor(embedColor)
-                .setTitle('List of players')
-                .setDescription(playerList || 'No players found.')
-                .setFooter({
-                    text: botName,
-                    iconURL: urlFooterIcon
-                })
-                .setTimestamp();
+            const container = new ContainerBuilder()
+                .setAccentColor(embedColor);
 
-            return embed;
+            const section = new SectionBuilder()
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder({content: playerList || t.noPlayers})
+                );
+
+            container.addSectionComponents(section);
+
+            await interaction.editReply({
+                flags: MessageFlags.IsComponentsV2,
+                components: [container]
+            });
         } else {
             throw new Error('API response indicates failure');
         }
     } catch (error) {
-        console.error('Error while fetching players :', error);
+        console.error('Error while fetching players:', error);
 
-        const errorEmbed = new EmbedBuilder()
-            .setColor(errorEmbedColor)
-            .setTitle('Error')
-            .setDescription('Unable to retrieve the list of players. Please try again later.');
-
-        await interaction.editReply({embeds: [errorEmbed]});
+        await interaction.editReply({
+            content: t.error
+        });
     }
 }
 
