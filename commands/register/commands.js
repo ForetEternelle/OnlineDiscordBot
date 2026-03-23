@@ -3,8 +3,7 @@ const {logInteraction} = require('../../tools/log');
 const {
     baseUrlOnlineServerAPI,
     baseUrlDataApi,
-    discordToken,
-    discordClientId
+    discordToken
 } = require('../../tools/settings');
 
 const rest = new REST({version: '10'}).setToken(discordToken);

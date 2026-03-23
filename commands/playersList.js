@@ -72,7 +72,9 @@ async function playersList(interaction, client) {
                 components: [container]
             });
         } else {
-            throw new Error('API response indicates failure');
+            await interaction.editReply({
+                content: t.noPlayers
+            });
         }
     } catch (error) {
         console.error('Error while fetching players:', error);

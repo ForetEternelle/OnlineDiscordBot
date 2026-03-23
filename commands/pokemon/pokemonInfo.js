@@ -147,7 +147,6 @@ async function pokemonInfo(interaction) {
             if (response.status === 404) {
                 return interaction.editReply({content: t.notFound(name)});
             }
-            throw new Error(`HTTP error! status: ${response.status}`);
         }
         const pokemonData = await response.json();
         const mainForm = pokemonData.main_form;
@@ -269,7 +268,7 @@ async function pokemonInfo(interaction) {
 
         // Encounter Section
         container.addSeparatorComponents(new SeparatorBuilder());
-        let genderRatioText = '';
+        let genderRatioText;
         if (mainForm.femaleRate === -1) {
             genderRatioText = t.genderless;
         } else {

@@ -37,8 +37,6 @@ async function handleAbilityShow(interaction) {
             }
         );
 
-        if (!response.ok) throw new Error('API_RESPONSE_NOT_OK');
-
         const ability = await response.json();
         if (!ability || !ability.symbol) {
             return interaction.editReply({ content: t.unable });
