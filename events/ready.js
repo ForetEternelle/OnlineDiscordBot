@@ -1,7 +1,7 @@
 const {logInteraction} = require('../tools/log');
 
 module.exports = {
-    name: 'ready',
+    name: 'clientReady',
     once: true,
     /**
      * Logs a message when the bot is ready, indicating the name of the bot.
