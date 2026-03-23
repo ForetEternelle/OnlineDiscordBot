@@ -237,7 +237,6 @@ async function moveInfo(interaction) {
             if (response.status === 404) {
                 return interaction.editReply({content: t.notFound(moveName)});
             }
-            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const moveData = await response.json();

@@ -41,8 +41,6 @@ async function mysteryGiftsList(interaction, client) {
         });
         const data = await response.json();
 
-        if (!data.success) throw new Error('API response indicates failure');
-
         let gifts = data.gifts || [];
 
         const now = new Date();

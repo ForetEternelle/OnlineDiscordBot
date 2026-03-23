@@ -10,7 +10,7 @@ const {handleGiftShow} = require("../interactions/giftShow");
 const {handleAbilityShow} = require("../interactions/abilityShow");
 const {handleTypeShow} = require("../interactions/typeShow");
 const {getLanguage} = require("../tools/language");
-const {ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, MessageFlags} = require('discord.js');
+const {MessageFlags} = require('discord.js');
 
 module.exports = {
     name: 'interactionCreate',
