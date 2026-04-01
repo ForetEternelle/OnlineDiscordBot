@@ -181,8 +181,8 @@ async function pokemonInfo(interaction, client) {
         const container = new ContainerBuilder().setAccentColor(color);
 
         const headerComponents = [
-            new TextDisplayBuilder({content: `# **${formatName(pokemonData.name)} - ${number}**`}),
-            new TextDisplayBuilder({content: `${pokemonData.description}`}),
+            new TextDisplayBuilder({content: `# **${formatName(mainForm.name)} - ${number}**`}),
+            new TextDisplayBuilder({content: `${mainForm.description}`}),
             new TextDisplayBuilder({
                 content: `${t.height}: **${mainForm.height ?? '?'} m** | ${t.weight}: **${mainForm.weight ?? '?'} kg**`
             })
