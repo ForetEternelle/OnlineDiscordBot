@@ -4,6 +4,7 @@ const {
     ContainerBuilder,
     TextDisplayBuilder,
     ButtonBuilder,
+    SectionBuilder,
     ButtonStyle,
     Colors
 } = require('discord.js');
@@ -12,7 +13,7 @@ const {logInteraction} = require('../tools/log');
 const {baseUrlOnlineServerAPI, onlineServerBearerToken} = require('../tools/settings');
 const {getLanguage} = require('../tools/language');
 
-async function mysteryGiftsList(interaction, client) {
+async function mysteryGiftsList(interaction, client) {SectionBuilder
     logInteraction('Mystery gifts command', interaction, client, true);
     await interaction.deferReply({flags: MessageFlags.Ephemeral});
 
@@ -91,18 +92,20 @@ async function mysteryGiftsList(interaction, client) {
             const container = new ContainerBuilder()
                 .setAccentColor(color);
 
-            container.addTextDisplayComponents(
-                new TextDisplayBuilder({content: `🎁 **${gift.title}**`}),
-                new TextDisplayBuilder({content: `➡️ Code: **${gift.code || t.claim}**`}),
-                new TextDisplayBuilder({content: dateInfo})
-            );
+            const section = new SectionBuilder()
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder({ content: `🎁 **${gift.title}**` }),
+                    new TextDisplayBuilder({ content: `➡️ Code : **${gift.code || '*À récupérer dans le jeu*'}**` }),
+                    new TextDisplayBuilder({ content: dateInfo })
+                )
+                .setButtonAccessory(
+                    new ButtonBuilder()
+                        .setLabel('🎒 Voir le contenu')
+                        .setStyle(ButtonStyle.Primary)
+                        .setCustomId(`gift_show_${gift.id}`)
+                );
 
-            container.setButtonAccessory(
-                new ButtonBuilder()
-                    .setLabel(t.viewContents)
-                    .setStyle(ButtonStyle.Primary)
-                    .setCustomId(`gift_show_${gift.id}&lang=${lang}`)
-            );
+            container.addSectionComponents(section);
 
             return container;
         });
