@@ -38,6 +38,27 @@ function hexToDecimalColor(hex) {
 }
 
 /**
+ * Fetch localized Pokemon display name from API, fallback to identifier.
+ * @param {string} identifier
+ * @param {string} lang
+ * @returns {Promise<string>}
+ */
+async function getLocalizedPokemonName(identifier, lang) {
+    if (!identifier || identifier === '__undef__') return '-';
+
+    try {
+        const response = await fetch(`${baseUrlDataApi}/pokemon/${encodeURIComponent(identifier)}?lang=${lang}`);
+        if (!response.ok) return identifier;
+
+        const pokemon = await response.json();
+        console.log(pokemon);
+        return pokemon?.main_form?.name || pokemon?.name || identifier;
+    } catch {
+        return identifier;
+    }
+}
+
+/**
  * Labels for the locales.
  */
 const T = {
@@ -293,10 +314,11 @@ async function pokemonInfo(interaction, client) {
             const breedingGroupsText = mainForm.breedGroups && mainForm.breedGroups.length > 0
                 ? mainForm.breedGroups.filter((v, i, a) => a.indexOf(v) === i).join(', ')
                 : '-';
+            const babyDisplayName = await getLocalizedPokemonName(mainForm.babyDbSymbol, lang);
             container.addTextDisplayComponents(
                 new TextDisplayBuilder({
                     content: `**${t.breeding}:**\n` +
-                        `${t.baby}: **${mainForm.babyDbSymbol ?? '-'}**\n` +
+                        `${t.baby}: **${babyDisplayName}**\n` +
                         `${t.breedingGroups}: **${breedingGroupsText}**\n` +
                         `${t.eggSteps}: **${mainForm.hatchSteps ?? '?'}**`
                 })
