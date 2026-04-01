@@ -164,7 +164,7 @@ async function pokemonInfo(interaction, client) {
     await interaction.deferReply();
 
     try {
-        const response = await fetch(`${baseUrlDataApi}/pokemon/${name}?lang=${lang}`);
+        const response = await fetch(`${baseUrlDataApi}/pokemon/name/${name}?lang=${lang}`);
         if (!response.ok) {
             if (response.status === 404) {
                 return interaction.editReply({content: t.notFound(name)});
