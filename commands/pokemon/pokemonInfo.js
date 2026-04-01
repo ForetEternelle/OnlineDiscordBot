@@ -143,7 +143,7 @@ async function pokemonInfo(interaction, client) {
     await interaction.deferReply();
 
     try {
-        const response = await fetch(`${baseUrlDataApi}/pokemon/${name}?lang=${lang}`);
+        const response = await fetch(`${baseUrlDataApi}/pokemon/name/${name}?lang=${lang}`);
         if (!response.ok) {
             if (response.status === 404) {
                 return interaction.editReply({content: t.notFound(name)});
@@ -161,8 +161,8 @@ async function pokemonInfo(interaction, client) {
         const container = new ContainerBuilder().setAccentColor(color);
 
         const headerComponents = [
-            new TextDisplayBuilder({content: `# **${formatName(pokemonData.name)} - ${number}**`}),
-            new TextDisplayBuilder({content: `${pokemonData.description}`}),
+            new TextDisplayBuilder({content: `# **${formatName(mainForm.name)} - ${number}**`}),
+            new TextDisplayBuilder({content: `${mainForm.description}`}),
             new TextDisplayBuilder({
                 content: `${t.height}: **${mainForm.height ?? '?'} m** | ${t.weight}: **${mainForm.weight ?? '?'} kg**`
             })
