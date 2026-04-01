@@ -67,7 +67,7 @@ const onlineServerApiCommands = [
                 )
                 .setRequired(false)
         )
-        .addStringOption(option =>
+        .addBooleanOption(option =>
             option
                 .setName('show_all')
                 .setNameLocalizations({
@@ -77,10 +77,6 @@ const onlineServerApiCommands = [
                 .setDescriptionLocalizations({
                     fr: 'Affiche tous les cadeaux, y compris ceux expirés'
                 })
-                .addChoices(
-                    { name: 'Yes', value: 'yes', name_localizations: { fr: 'Oui' } },
-                    { name: 'No', value: 'no', name_localizations: { fr: 'Non' } }
-                )
                 .setRequired(false)
         ),
 ];

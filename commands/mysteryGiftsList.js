@@ -13,9 +13,9 @@ const {logInteraction} = require('../tools/log');
 const {baseUrlOnlineServerAPI, onlineServerBearerToken} = require('../tools/settings');
 const {getLanguage} = require('../tools/language');
 
-async function mysteryGiftsList(interaction, client) {SectionBuilder
+async function mysteryGiftsList(interaction, client) {
     logInteraction('Mystery gifts command', interaction, client, true);
-    await interaction.deferReply({flags: MessageFlags.Ephemeral});
+    await interaction.deferReply();
 
     const lang = getLanguage(interaction);
     const labels = {
@@ -53,7 +53,7 @@ async function mysteryGiftsList(interaction, client) {SectionBuilder
             return {...gift, isActive, hasDates};
         });
 
-        const onlyActive = !interaction.options?.getString('show_all') === "yes" ?? true;
+        const showAll = interaction.options?.getBoolean('show_all') ?? false;
         const type = interaction.options?.getString('type') || 'all';
 
         if (type === 'code') {
@@ -62,7 +62,7 @@ async function mysteryGiftsList(interaction, client) {SectionBuilder
             gifts = gifts.filter(gift => gift.type === 'internet');
         }
 
-        if (onlyActive) {
+        if (!showAll) {
             gifts = gifts.filter(gift => gift.isActive);
         }
 
