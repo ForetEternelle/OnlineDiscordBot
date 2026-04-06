@@ -189,7 +189,9 @@ async function pokemonInfo(interaction, client) {
         ];
 
         if (pokemonImageBaseUrl && pokemonImageBaseUrl.trim() !== "") {
-            const thumbnailUrl = `${pokemonImageBaseUrl}${pokemonData.number}.png`;
+            // Fix: Pad Pokemon number to 3 digits (e.g., 1 -> 001, 99 -> 099)
+            const paddedNumber = String(pokemonData.number).padStart(3, '0');
+            const thumbnailUrl = `${pokemonImageBaseUrl}${paddedNumber}.png`;
             const thumbnail = new ThumbnailBuilder({
                 media: { url: thumbnailUrl }
             });
