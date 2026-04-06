@@ -189,7 +189,11 @@ async function pokemonInfo(interaction, client) {
         ];
 
         if (pokemonImageBaseUrl && pokemonImageBaseUrl.trim() !== "") {
-            const thumbnailUrl = `${pokemonImageBaseUrl}${pokemonData.number}.png`;
+            // Fix: Format pokemon number to 3 digits (001-099) for correct sprite display
+            const pokemonNumber = typeof pokemonData.number === 'string' 
+                ? pokemonData.number.padStart(3, '0') 
+                : String(pokemonData.number).padStart(3, '0');
+            const thumbnailUrl = `${pokemonImageBaseUrl}${pokemonNumber}.png`;
             const thumbnail = new ThumbnailBuilder({
                 media: { url: thumbnailUrl }
             });
