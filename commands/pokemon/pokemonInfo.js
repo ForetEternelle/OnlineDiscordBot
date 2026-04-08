@@ -51,7 +51,6 @@ async function getLocalizedPokemonName(identifier, lang) {
         if (!response.ok) return identifier;
 
         const pokemon = await response.json();
-        console.log(pokemon);
         return pokemon?.main_form?.name || pokemon?.name || identifier;
     } catch {
         return identifier;
