@@ -8,6 +8,10 @@ const {
 const {logInteraction} = require('../tools/log');
 const {baseUrlDataApi, onlineServerBearerToken} = require('../tools/settings');
 
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 async function handleTypeShow(interaction) {
     const customId = interaction.customId;
     const typeSymbol = customId.split('&')[0].replace('type_', '');
@@ -53,13 +57,17 @@ async function handleTypeShow(interaction) {
         );
 
         // Defensive damage table
-        if (type.typeDamage && type.typeDamage.length > 0) {
-            const weaknesses = type.typeDamage.filter(td => td.factor > 1);
-            const resistances = type.typeDamage.filter(td => td.factor < 1);
+        const typeDamageEntries = type.typeDamage
+            ? Object.entries(type.typeDamage).map(([defensiveType, factor]) => ({defensiveType, factor}))
+            : [];
+
+        if (typeDamageEntries.length > 0) {
+            const weaknesses = typeDamageEntries.filter(td => td.factor > 1);
+            const resistances = typeDamageEntries.filter(td => td.factor < 1);
 
             if (weaknesses.length > 0) {
                 const weaknessesText = weaknesses
-                    .map(td => `- **${td.defensiveType}** ×${td.factor}`)
+                    .map(td => `- **${capitalize(td.defensiveType)}** ×${td.factor}`)
                     .join('\n');
                 container.addTextDisplayComponents(
                     new TextDisplayBuilder({
@@ -70,7 +78,7 @@ async function handleTypeShow(interaction) {
 
             if (resistances.length > 0) {
                 const resistancesText = resistances
-                    .map(td => `- **${td.defensiveType}** ×${td.factor}`)
+                    .map(td => `- **${capitalize(td.defensiveType)}** ×${td.factor}`)
                     .join('\n');
                 container.addTextDisplayComponents(
                     new TextDisplayBuilder({
