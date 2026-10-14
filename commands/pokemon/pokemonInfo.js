@@ -16,6 +16,7 @@ const {
 const {baseUrlDataApi, pokemonImageBaseUrl} = require('../../tools/settings');
 const { logInteraction } = require('../../tools/log');
 const {getLanguage} = require('../../tools/language');
+const {getAllTypes, buildDefensiveSections} = require('../../tools/types');
 
 /**
  * Format a Pokémon name (capitalize first letter).
@@ -67,6 +68,8 @@ const T = {
         weight: 'Weight',
         baseStats: 'Base Stats',
         types: 'Type',
+        weaknesses: 'Weaknesses (takes more damage)',
+        resistances: 'Resistances (takes less damage)',
         abilities: 'Abilities',
         experience: 'Experience',
         encounter: 'Encounter',
@@ -109,6 +112,8 @@ const T = {
         weight: 'Poids',
         baseStats: 'Statistiques de base',
         types: 'Type',
+        weaknesses: 'Faiblesses (reçoit plus de dégâts)',
+        resistances: 'Résistances (reçoit moins de dégâts)',
         abilities: 'Talents',
         experience: 'Expérience',
         encounter: 'Rencontre',
@@ -164,6 +169,7 @@ async function pokemonInfo(interaction, client) {
     await interaction.deferReply();
 
     try {
+        const allTypesPromise = getAllTypes(lang);
         const response = await fetch(`${baseUrlDataApi}/pokemon/name/${encodeURIComponent(name)}?lang=${lang}`);
         if (!response.ok) {
             if (response.status === 404) {
@@ -247,6 +253,15 @@ async function pokemonInfo(interaction, client) {
             })
         );
         container.addActionRowComponents(typeRow);
+
+        // Weaknesses and resistances combining both types
+        const defendingSymbols = [mainForm.type1?.symbol, mainForm.type2?.symbol].filter(Boolean);
+        const defensiveSections = buildDefensiveSections(defendingSymbols, await allTypesPromise, t);
+        if (defensiveSections.length > 0) {
+            container.addTextDisplayComponents(
+                new TextDisplayBuilder({content: defensiveSections.join('\n')})
+            );
+        }
 
         if (mainForm.abilities && mainForm.abilities.length > 0) {
             container.addSeparatorComponents(new SeparatorBuilder());

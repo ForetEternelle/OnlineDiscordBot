@@ -7,6 +7,7 @@ const {
     Colors
 } = require('discord.js');
 const {logInteraction} = require('../../tools/log');
+const {getAllTypes, buildTypeMatchupSections} = require('../../tools/types');
 const {baseUrlDataApi, onlineServerBearerToken} = require('../../tools/settings');
 const {getLanguage} = require('../../tools/language');
 
@@ -20,6 +21,8 @@ const T = {
         missingName: '⚠️ You must specify a type name.',
         weaknesses: 'Weaknesses (takes more damage)',
         resistances: 'Resistances (takes less damage)',
+        strongAgainst: 'Super effective against (deals more damage)',
+        weakAgainst: 'Not very effective against (deals less damage)',
         noData: 'No damage data available.',
     },
     fr: {
@@ -28,6 +31,8 @@ const T = {
         missingName: '⚠️ Vous devez spécifier un nom de type.',
         weaknesses: 'Faiblesses (reçoit plus de dégâts)',
         resistances: 'Résistances (reçoit moins de dégâts)',
+        strongAgainst: 'Super efficace contre (inflige plus de dégâts)',
+        weakAgainst: 'Peu efficace contre (inflige moins de dégâts)',
         noData: 'Aucune donnée de dégâts disponible.',
     }
 };
@@ -40,15 +45,6 @@ const T = {
 function hexToDecimalColor(hex) {
     if (!hex || !/^#[0-9A-Fa-f]{6}$/.test(hex)) return Colors.Blurple;
     return parseInt(hex.slice(1), 16);
-}
-
-/**
- * Capitalize the first letter of a type symbol for display.
- * @param {string} str
- * @returns {string}
- */
-function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 /**
@@ -67,6 +63,7 @@ async function typeInfo(interaction) {
     await interaction.deferReply();
 
     try {
+        const allTypesPromise = getAllTypes(lang);
         const response = await fetch(`${baseUrlDataApi}/types/${typeName.toLowerCase()}?lang=${lang}`, {
             headers: {
                 authorization: onlineServerBearerToken
@@ -74,6 +71,7 @@ async function typeInfo(interaction) {
         });
 
         const type = await response.json();
+        const allTypes = await allTypesPromise;
 
         if (!type || !type.symbol) {
             return interaction.editReply({content: t.notFound(typeName)});
@@ -89,38 +87,16 @@ async function typeInfo(interaction) {
 
         container.addSeparatorComponents(new SeparatorBuilder());
 
-        // Defensive damage table
-        const typeDamageEntries = type.typeDamage
-            ? Object.entries(type.typeDamage).map(([defensiveType, factor]) => ({defensiveType, factor}))
-            : [];
+        // Defensive and offensive matchups
+        const sections = buildTypeMatchupSections(type, allTypes, t);
 
-        if (typeDamageEntries.length > 0) {
-            const weaknesses = typeDamageEntries.filter(td => td.factor > 1);
-            const resistances = typeDamageEntries.filter(td => td.factor < 1);
-
-            if (weaknesses.length > 0) {
-                const weaknessesText = weaknesses
-                    .map(td => `- **${capitalize(td.defensiveType)}** ×${td.factor}`)
-                    .join('\n');
-                container.addTextDisplayComponents(
-                    new TextDisplayBuilder({
-                        content: `**${t.weaknesses}:**\n${weaknessesText}`
-                    })
-                );
-            }
-
-            container.addSeparatorComponents(new SeparatorBuilder());
-
-            if (resistances.length > 0) {
-                const resistancesText = resistances
-                    .map(td => `- **${capitalize(td.defensiveType)}** ×${td.factor}`)
-                    .join('\n');
-                container.addTextDisplayComponents(
-                    new TextDisplayBuilder({
-                        content: `**${t.resistances}:**\n${resistancesText}`
-                    })
-                );
-            }
+        if (sections.length > 0) {
+            sections.forEach((content, index) => {
+                if (index > 0) {
+                    container.addSeparatorComponents(new SeparatorBuilder());
+                }
+                container.addTextDisplayComponents(new TextDisplayBuilder({content}));
+            });
         } else {
             container.addTextDisplayComponents(
                 new TextDisplayBuilder({ content: t.noData })
