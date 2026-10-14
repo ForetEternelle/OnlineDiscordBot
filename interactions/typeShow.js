@@ -6,6 +6,7 @@ const {
     Colors
 } = require('discord.js');
 const {logInteraction} = require('../tools/log');
+const {getAllTypes, buildTypeMatchupSections} = require('../tools/types');
 const {baseUrlDataApi, onlineServerBearerToken} = require('../tools/settings');
 
 async function handleTypeShow(interaction) {
@@ -20,6 +21,8 @@ async function handleTypeShow(interaction) {
             unable: '⚠️ Unable to retrieve this type.',
             weaknesses: 'Weaknesses (takes more damage)',
             resistances: 'Resistances (takes less damage)',
+            strongAgainst: 'Super effective against (deals more damage)',
+            weakAgainst: 'Not very effective against (deals less damage)',
             noData: 'No damage data available.',
             error: "⚠️ An error occurred while retrieving this type."
         },
@@ -27,6 +30,8 @@ async function handleTypeShow(interaction) {
             unable: '⚠️ Impossible de récupérer ce type.',
             weaknesses: 'Faiblesses (reçoit plus de dégâts)',
             resistances: 'Résistances (reçoit moins de dégâts)',
+            strongAgainst: 'Super efficace contre (inflige plus de dégâts)',
+            weakAgainst: 'Peu efficace contre (inflige moins de dégâts)',
             noData: 'Aucune donnée de dégâts disponible.',
             error: "⚠️ Une erreur est survenue lors de la récupération de ce type."
         }
@@ -34,6 +39,7 @@ async function handleTypeShow(interaction) {
     const t = labels[lang];
 
     try {
+        const allTypesPromise = getAllTypes(lang);
         const response = await fetch(`${baseUrlDataApi}/types/${typeSymbol}?lang=${lang}`, {
             headers: {
                 authorization: onlineServerBearerToken
@@ -41,6 +47,7 @@ async function handleTypeShow(interaction) {
         });
 
         const type = await response.json();
+        const allTypes = await allTypesPromise;
         if (!type || !type.symbol)
             return interaction.editReply({ content: t.unable });
 
@@ -52,32 +59,13 @@ async function handleTypeShow(interaction) {
             new TextDisplayBuilder({ content: `# **${type.name}**` })
         );
 
-        // Defensive damage table
-        if (type.typeDamage && type.typeDamage.length > 0) {
-            const weaknesses = type.typeDamage.filter(td => td.factor > 1);
-            const resistances = type.typeDamage.filter(td => td.factor < 1);
+        // Defensive and offensive matchups
+        const sections = buildTypeMatchupSections(type, allTypes, t);
 
-            if (weaknesses.length > 0) {
-                const weaknessesText = weaknesses
-                    .map(td => `- **${td.defensiveType}** ×${td.factor}`)
-                    .join('\n');
-                container.addTextDisplayComponents(
-                    new TextDisplayBuilder({
-                        content: `**${t.weaknesses}:**\n${weaknessesText}`
-                    })
-                );
-            }
-
-            if (resistances.length > 0) {
-                const resistancesText = resistances
-                    .map(td => `- **${td.defensiveType}** ×${td.factor}`)
-                    .join('\n');
-                container.addTextDisplayComponents(
-                    new TextDisplayBuilder({
-                        content: `**${t.resistances}:**\n${resistancesText}`
-                    })
-                );
-            }
+        if (sections.length > 0) {
+            sections.forEach(content => {
+                container.addTextDisplayComponents(new TextDisplayBuilder({content}));
+            });
         } else {
             container.addTextDisplayComponents(
                 new TextDisplayBuilder({ content: t.noData })

@@ -1,6 +1,7 @@
 const {logInteraction} = require('../tools/log');
 const {showABout} = require('../commands/showAbout');
 const {commandsList} = require('../commands/commandsList');
+const {reportIssue} = require('../commands/reportIssue');
 const {mysteryGiftsList} = require('../commands/mysteryGiftsList');
 const {playersList} = require('../commands/playersList');
 const {pokemonInfo} = require("../commands/pokemon/pokemonInfo");
@@ -28,6 +29,8 @@ module.exports = {
                     component = await showABout(interaction, client);
                 } else if (interaction.commandName === 'commands') {
                     component = await commandsList(interaction);
+                } else if (interaction.commandName === 'ticket') {
+                    component = await reportIssue(interaction, client);
                 } else if (interaction.commandName === 'gifts') {
                     await mysteryGiftsList(interaction, client);
                 } else if (interaction.commandName === 'players') {
