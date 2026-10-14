@@ -40,18 +40,19 @@ function hexToDecimalColor(hex) {
 /**
  * Fetch localized Pokemon display name from API, fallback to identifier.
  * @param {string} identifier
+ * @param {number} form
  * @param {string} lang
  * @returns {Promise<string>}
  */
-async function getLocalizedPokemonName(identifier, lang) {
+async function getLocalizedPokemonName(identifier, form, lang) {
     if (!identifier || identifier === '__undef__') return '-';
 
     try {
-        const response = await fetch(`${baseUrlDataApi}/pokemon/${encodeURIComponent(identifier)}?lang=${lang}`);
+        const response = await fetch(`${baseUrlDataApi}/pokemon/${encodeURIComponent(identifier)}/forms/${form ?? 0}?lang=${lang}`);
         if (!response.ok) return identifier;
 
         const pokemon = await response.json();
-        return pokemon?.main_form?.name || pokemon?.name || identifier;
+        return pokemon?.form?.name || identifier;
     } catch {
         return identifier;
     }
@@ -163,14 +164,15 @@ async function pokemonInfo(interaction, client) {
     await interaction.deferReply();
 
     try {
-        const response = await fetch(`${baseUrlDataApi}/pokemon/name/${name}?lang=${lang}`);
+        const response = await fetch(`${baseUrlDataApi}/pokemon/name/${encodeURIComponent(name)}?lang=${lang}`);
         if (!response.ok) {
             if (response.status === 404) {
                 return interaction.editReply({content: t.notFound(name)});
             }
+            throw new Error(`Data API responded with HTTP ${response.status}`);
         }
         const pokemonData = await response.json();
-        const mainForm = pokemonData.main_form;
+        const mainForm = pokemonData.form;
         if (!mainForm) {
             return interaction.editReply({content: t.notFound(name)});
         }
@@ -316,7 +318,7 @@ async function pokemonInfo(interaction, client) {
             const breedingGroupsText = mainForm.breedGroups && mainForm.breedGroups.length > 0
                 ? mainForm.breedGroups.filter((v, i, a) => a.indexOf(v) === i).join(', ')
                 : '-';
-            const babyDisplayName = await getLocalizedPokemonName(mainForm.babyDbSymbol, lang);
+            const babyDisplayName = await getLocalizedPokemonName(mainForm.babyDbSymbol, mainForm.babyForm, lang);
             container.addTextDisplayComponents(
                 new TextDisplayBuilder({
                     content: `**${t.breeding}:**\n` +
