@@ -1,4 +1,3 @@
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const {
     MessageFlags,
     TextDisplayBuilder,
@@ -13,7 +12,8 @@ const {
 } = require('discord.js');
 
 
-const {baseUrlDataApi, pokemonImageBaseUrl} = require('../../tools/settings');
+const {pokemonImageBaseUrl} = require('../../tools/settings');
+const {dataApi} = require('../../tools/dataApi');
 const { logInteraction } = require('../../tools/log');
 const {getLanguage} = require('../../tools/language');
 const {getAllTypes, buildDefensiveSections} = require('../../tools/types');
@@ -49,10 +49,9 @@ async function getLocalizedPokemonName(identifier, form, lang) {
     if (!identifier || identifier === '__undef__') return '-';
 
     try {
-        const response = await fetch(`${baseUrlDataApi}/pokemon/${encodeURIComponent(identifier)}/forms/${form ?? 0}?lang=${lang}`);
-        if (!response.ok) return identifier;
-
-        const pokemon = await response.json();
+        const {data: pokemon} = await dataApi.GET('/pokemon/{symbol}/forms/{form}', {
+            params: {path: {symbol: identifier, form: form ?? 0}, query: {lang}},
+        });
         return pokemon?.form?.name || identifier;
     } catch {
         return identifier;
@@ -170,14 +169,15 @@ async function pokemonInfo(interaction, client) {
 
     try {
         const allTypesPromise = getAllTypes(lang);
-        const response = await fetch(`${baseUrlDataApi}/pokemon/name/${encodeURIComponent(name)}?lang=${lang}`);
+        const {data: pokemonData, response} = await dataApi.GET('/pokemon/name/{name}', {
+            params: {path: {name}, query: {lang}},
+        });
         if (!response.ok) {
             if (response.status === 404) {
                 return interaction.editReply({content: t.notFound(name)});
             }
             throw new Error(`Data API responded with HTTP ${response.status}`);
         }
-        const pokemonData = await response.json();
         const mainForm = pokemonData.form;
         if (!mainForm) {
             return interaction.editReply({content: t.notFound(name)});

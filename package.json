@@ -1,7 +1,18 @@
 {
+  "config": {
+    "dataApiVersion": "v2026.09.1"
+  },
+  "scripts": {
+    "generate:data-api": "openapi-typescript https://github.com/ForetEternelle/PokemonStudioDataApi/releases/download/$npm_package_config_dataApiVersion/openapi.json -o tools/dataApi.schema.d.ts"
+  },
   "dependencies": {
     "discord.js": "^14.23.2",
     "dotenv": "^16.4.5",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "openapi-fetch": "^0.17.0"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.13.0",
+    "typescript": "^5.9.3"
   }
 }

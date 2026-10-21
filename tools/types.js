@@ -1,5 +1,4 @@
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-const {baseUrlDataApi, onlineServerBearerToken} = require('./settings');
+const {dataApi} = require('./dataApi');
 
 // Cache of all types per language: { lang: [type, ...] }
 const typesCache = {};
@@ -23,14 +22,9 @@ async function getAllTypes(lang) {
     if (typesCache[lang]) return typesCache[lang];
 
     try {
-        const response = await fetch(`${baseUrlDataApi}/types?lang=${lang}`, {
-            headers: {
-                authorization: onlineServerBearerToken
-            },
+        const {data: types} = await dataApi.GET('/types', {
+            params: {query: {lang}},
         });
-        if (!response.ok) return [];
-
-        const types = await response.json();
         if (!Array.isArray(types)) return [];
 
         typesCache[lang] = types;

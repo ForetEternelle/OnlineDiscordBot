@@ -1,4 +1,3 @@
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const {
     MessageFlags,
     ContainerBuilder,
@@ -7,7 +6,7 @@ const {
 } = require('discord.js');
 const {logInteraction} = require('../tools/log');
 const {getAllTypes, buildTypeMatchupSections} = require('../tools/types');
-const {baseUrlDataApi, onlineServerBearerToken} = require('../tools/settings');
+const {dataApi} = require('../tools/dataApi');
 
 async function handleTypeShow(interaction) {
     const customId = interaction.customId;
@@ -40,13 +39,9 @@ async function handleTypeShow(interaction) {
 
     try {
         const allTypesPromise = getAllTypes(lang);
-        const response = await fetch(`${baseUrlDataApi}/types/${typeSymbol}?lang=${lang}`, {
-            headers: {
-                authorization: onlineServerBearerToken
-            },
+        const {data: type} = await dataApi.GET('/types/{symbol}', {
+            params: {path: {symbol: typeSymbol}, query: {lang}},
         });
-
-        const type = await response.json();
         const allTypes = await allTypesPromise;
         if (!type || !type.symbol)
             return interaction.editReply({ content: t.unable });
