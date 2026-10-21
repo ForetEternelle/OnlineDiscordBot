@@ -3,6 +3,7 @@ const {logInteraction} = require('../../tools/log');
 const {
     baseUrlOnlineServerAPI,
     baseUrlDataApi,
+    ticketUrl,
     discordToken
 } = require('../../tools/settings');
 
@@ -29,6 +30,16 @@ const commands = [
             fr: 'Affiche les informations sur le bot.'
         }),
 ];
+
+const ticketCommand = new SlashCommandBuilder()
+    .setName('ticket')
+    .setNameLocalizations({
+        fr: 'ticket'
+    })
+    .setDescription('Report a bug or suggest an idea.')
+    .setDescriptionLocalizations({
+        fr: 'Signale un bug ou propose une idée.'
+    });
 
 const onlineServerApiCommands = [
     new SlashCommandBuilder()
@@ -197,6 +208,9 @@ const dataApiCommands = [
         ),
 ];
 
+if (ticketUrl) {
+    commands.push(ticketCommand);
+}
 if (baseUrlOnlineServerAPI) {
     commands.push(...onlineServerApiCommands);
 }

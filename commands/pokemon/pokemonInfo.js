@@ -1,4 +1,3 @@
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const {
     MessageFlags,
     TextDisplayBuilder,
@@ -13,9 +12,11 @@ const {
 } = require('discord.js');
 
 
-const {baseUrlDataApi, pokemonImageBaseUrl} = require('../../tools/settings');
+const {pokemonImageBaseUrl} = require('../../tools/settings');
+const {dataApi} = require('../../tools/dataApi');
 const { logInteraction } = require('../../tools/log');
 const {getLanguage} = require('../../tools/language');
+const {getAllTypes, buildDefensiveSections} = require('../../tools/types');
 
 /**
  * Format a Pokémon name (capitalize first letter).
@@ -40,18 +41,18 @@ function hexToDecimalColor(hex) {
 /**
  * Fetch localized Pokemon display name from API, fallback to identifier.
  * @param {string} identifier
+ * @param {number} form
  * @param {string} lang
  * @returns {Promise<string>}
  */
-async function getLocalizedPokemonName(identifier, lang) {
+async function getLocalizedPokemonName(identifier, form, lang) {
     if (!identifier || identifier === '__undef__') return '-';
 
     try {
-        const response = await fetch(`${baseUrlDataApi}/pokemon/${encodeURIComponent(identifier)}?lang=${lang}`);
-        if (!response.ok) return identifier;
-
-        const pokemon = await response.json();
-        return pokemon?.main_form?.name || pokemon?.name || identifier;
+        const {data: pokemon} = await dataApi.GET('/pokemon/{symbol}/forms/{form}', {
+            params: {path: {symbol: identifier, form: form ?? 0}, query: {lang}},
+        });
+        return pokemon?.form?.name || identifier;
     } catch {
         return identifier;
     }
@@ -66,6 +67,8 @@ const T = {
         weight: 'Weight',
         baseStats: 'Base Stats',
         types: 'Type',
+        weaknesses: 'Weaknesses (takes more damage)',
+        resistances: 'Resistances (takes less damage)',
         abilities: 'Abilities',
         experience: 'Experience',
         encounter: 'Encounter',
@@ -108,6 +111,8 @@ const T = {
         weight: 'Poids',
         baseStats: 'Statistiques de base',
         types: 'Type',
+        weaknesses: 'Faiblesses (reçoit plus de dégâts)',
+        resistances: 'Résistances (reçoit moins de dégâts)',
         abilities: 'Talents',
         experience: 'Expérience',
         encounter: 'Rencontre',
@@ -163,14 +168,17 @@ async function pokemonInfo(interaction, client) {
     await interaction.deferReply();
 
     try {
-        const response = await fetch(`${baseUrlDataApi}/pokemon/name/${name}?lang=${lang}`);
+        const allTypesPromise = getAllTypes(lang);
+        const {data: pokemonData, response} = await dataApi.GET('/pokemon/name/{name}', {
+            params: {path: {name}, query: {lang}},
+        });
         if (!response.ok) {
             if (response.status === 404) {
                 return interaction.editReply({content: t.notFound(name)});
             }
+            throw new Error(`Data API responded with HTTP ${response.status}`);
         }
-        const pokemonData = await response.json();
-        const mainForm = pokemonData.main_form;
+        const mainForm = pokemonData.form;
         if (!mainForm) {
             return interaction.editReply({content: t.notFound(name)});
         }
@@ -246,6 +254,15 @@ async function pokemonInfo(interaction, client) {
         );
         container.addActionRowComponents(typeRow);
 
+        // Weaknesses and resistances combining both types
+        const defendingSymbols = [mainForm.type1?.symbol, mainForm.type2?.symbol].filter(Boolean);
+        const defensiveSections = buildDefensiveSections(defendingSymbols, await allTypesPromise, t);
+        if (defensiveSections.length > 0) {
+            container.addTextDisplayComponents(
+                new TextDisplayBuilder({content: defensiveSections.join('\n')})
+            );
+        }
+
         if (mainForm.abilities && mainForm.abilities.length > 0) {
             container.addSeparatorComponents(new SeparatorBuilder());
             const abilitiesRows = new ActionRowBuilder();
@@ -316,7 +333,7 @@ async function pokemonInfo(interaction, client) {
             const breedingGroupsText = mainForm.breedGroups && mainForm.breedGroups.length > 0
                 ? mainForm.breedGroups.filter((v, i, a) => a.indexOf(v) === i).join(', ')
                 : '-';
-            const babyDisplayName = await getLocalizedPokemonName(mainForm.babyDbSymbol, lang);
+            const babyDisplayName = await getLocalizedPokemonName(mainForm.babyDbSymbol, mainForm.babyForm, lang);
             container.addTextDisplayComponents(
                 new TextDisplayBuilder({
                     content: `**${t.breeding}:**\n` +
