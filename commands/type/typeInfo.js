@@ -62,11 +62,15 @@ async function typeInfo(interaction) {
     await interaction.deferReply();
 
     try {
-        const allTypesPromise = getAllTypes(lang);
-        const {data: type} = await dataApi.GET('/types/{symbol}', {
-            params: {path: {symbol: typeName.toLowerCase()}, query: {lang}},
-        });
-        const allTypes = await allTypesPromise;
+        const allTypes = await getAllTypes(lang);
+
+        const normalize = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+        const search = normalize(typeName);
+        const match = allTypes.find(ty => normalize(ty.name) === search || normalize(ty.symbol) === search);
+
+        const {data: type} = match ? await dataApi.GET('/types/{symbol}', {
+            params: {path: {symbol: match.symbol}, query: {lang}},
+        }) : {};
 
         if (!type || !type.symbol) {
             return interaction.editReply({content: t.notFound(typeName)});
