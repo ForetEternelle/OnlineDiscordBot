@@ -20,6 +20,7 @@ const onlineServerBearerToken = getEnv('ONLINE_SERVER_BEARER_TOKEN', ['BEARER'])
 const baseUrlOnlineServerAPI = getEnv('ONLINE_SERVER_API_URL', ['ONLINE_SERVER_URL']);
 const baseUrlDataApi = getEnv('DATA_API_BASE_URL', ['BASE_URL_DATA_API']);
 const pokemonImageBaseUrl = getEnv('POKEMON_IMAGE_BASE_URL', ['IMAGE_URL']);
+const ticketUrl = getEnv('TICKET_URL');
 // Color of the messages
 const embedColor = 0x345C6D;
 
@@ -37,6 +38,7 @@ module.exports = {
     baseUrlOnlineServerAPI,
     baseUrlDataApi,
     pokemonImageBaseUrl,
+    ticketUrl,
     embedColor,
     logsChannelId,
     intents

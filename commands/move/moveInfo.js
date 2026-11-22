@@ -1,4 +1,3 @@
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const {
     MessageFlags,
     ContainerBuilder,
@@ -6,7 +5,7 @@ const {
     SeparatorBuilder,
     Colors
 } = require('discord.js');
-const {baseUrlDataApi} = require("../../tools/settings");
+const {dataApi} = require("../../tools/dataApi");
 const {getLanguage} = require("../../tools/language");
 
 /**
@@ -231,15 +230,16 @@ async function moveInfo(interaction, client) {
     await interaction.deferReply();
 
     try {
-        const response = await fetch(`${baseUrlDataApi}/moves/detail/${moveName}?lang=${lang}`);
+        const {data: moveData, response} = await dataApi.GET('/moves/detail/{symbol}', {
+            params: {path: {symbol: moveName}, query: {lang}},
+        });
 
         if (!response.ok) {
             if (response.status === 404) {
                 return interaction.editReply({content: t.notFound(moveName)});
             }
+            throw new Error(`Data API responded with HTTP ${response.status}`);
         }
-
-        const moveData = await response.json();
 
         const color = hexToDecimalColor(moveData.type?.color);
         const container = new ContainerBuilder().setAccentColor(color);

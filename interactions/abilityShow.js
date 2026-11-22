@@ -1,4 +1,3 @@
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const {
     MessageFlags,
     ContainerBuilder,
@@ -6,7 +5,7 @@ const {
     Colors
 } = require('discord.js');
 const { logInteraction } = require('../tools/log');
-const { baseUrlDataApi, onlineServerBearerToken } = require('../tools/settings');
+const { dataApi } = require('../tools/dataApi');
 
 async function handleAbilityShow(interaction) {
     const customId = interaction.customId;
@@ -28,16 +27,9 @@ async function handleAbilityShow(interaction) {
     const t = labels[lang];
 
     try {
-        const response = await fetch(
-            `${baseUrlDataApi}/abilities/${abilityId}?lang=${lang}`,
-            {
-                headers: {
-                    authorization: onlineServerBearerToken
-                }
-            }
-        );
-
-        const ability = await response.json();
+        const { data: ability } = await dataApi.GET('/abilities/{symbol}', {
+            params: { path: { symbol: abilityId }, query: { lang } }
+        });
         if (!ability || !ability.symbol) {
             return interaction.editReply({ content: t.unable });
         }
