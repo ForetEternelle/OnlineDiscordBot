@@ -14,7 +14,7 @@ const {baseUrlOnlineServerAPI, onlineServerBearerToken} = require('../tools/sett
 const {getLanguage} = require('../tools/language');
 
 async function mysteryGiftsList(interaction, client) {
-    logInteraction('Mystery gifts command', interaction, client, true);
+    await logInteraction('Mystery gifts command', interaction, client, true);
     await interaction.deferReply();
 
     const lang = getLanguage(interaction);

@@ -24,15 +24,15 @@ async function showABout(interaction, client) {
     const labels = {
         en: {
             title: `**About ${botName}**`,
-            ping: `📡 **Ping:** ${ping} ms`,
-            uptime: `⏱️ **Uptime:** ${days}d ${hours}h ${minutes}m ${seconds}s`,
-            version: `🚀 **Version:** ${botVersion}`
+            ping: `**Ping:** ${ping} ms`,
+            uptime: `**Uptime:** ${days}d ${hours}h ${minutes}m ${seconds}s`,
+            version: `**Version:** ${botVersion}`
         },
         fr: {
             title: `**À propos de ${botName}**`,
-            ping: `📡 **Ping :** ${ping} ms`,
-            uptime: `⏱️ **Uptime :** ${days}j ${hours}h ${minutes}m ${seconds}s`,
-            version: `🚀 **Version :** ${botVersion}`
+            ping: `**Ping :** ${ping} ms`,
+            uptime: ` **Uptime :** ${days}j ${hours}h ${minutes}m ${seconds}s`,
+            version: `**Version :** ${botVersion}`
         }
     };
 
