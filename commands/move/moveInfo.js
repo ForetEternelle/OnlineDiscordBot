@@ -221,7 +221,7 @@ const T = {
 async function moveInfo(interaction, client) {
     const lang = getLanguage(interaction);
     const t = T[lang];
-    const moveName = formatMoveEntry(interaction.options.getString('name'));
+    const moveName = interaction.options.getString('name')?.trim();
 
     if (!moveName) {
         return interaction.reply({content: t.missingName, flags: MessageFlags.Ephemeral});
@@ -230,8 +230,9 @@ async function moveInfo(interaction, client) {
     await interaction.deferReply();
 
     try {
-        const {data: moveData, response} = await dataApi.GET('/moves/detail/{symbol}', {
-            params: {path: {symbol: moveName}, query: {lang}},
+        // Resolves the symbol or the name in any language (e.g. "flamethrower", "Lance-Flammes").
+        const {data: moveData, response} = await dataApi.GET('/moves/name/{name}', {
+            params: {path: {name: moveName}, query: {lang}},
         });
 
         if (!response.ok) {
@@ -369,11 +370,6 @@ async function moveInfo(interaction, client) {
         console.error('Error while fetching move:', error);
         await interaction.editReply({content: t.error});
     }
-}
-
-function formatMoveEntry(moveName) {
-    return moveName.replace(/ /g, '_')
-        .replace(/\b\w/g, char => char.toLowerCase());
 }
 
 module.exports = {moveInfo};
