@@ -164,6 +164,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/moves/name/{name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a move details by name
+         * @description This endpoint returns a move details based on the name. The name is the symbol of the move or its translated name in any language (case-insensitive).
+         */
+        get: operations["getMoveDetailsByName"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/abilities": {
         parameters: {
             query?: never;
@@ -1007,6 +1027,50 @@ export interface operations {
             };
             /** @description invalid parameter error */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+        };
+    };
+    getMoveDetailsByName: {
+        parameters: {
+            query?: {
+                /** @description The language of the response */
+                lang?: string;
+            };
+            header?: never;
+            path: {
+                /** @description The symbol of the move or its name in any language */
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MoveDetails"];
+                };
+            };
+            /** @description invalid parameter error */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
