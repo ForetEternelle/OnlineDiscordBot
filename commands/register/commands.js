@@ -52,7 +52,7 @@ const onlineServerApiCommands = [
             fr: 'Affiche la liste des joueurs.'
         }),
 
-    /*new SlashCommandBuilder()
+    new SlashCommandBuilder()
         .setName('gifts')
         .setNameLocalizations({
             fr: 'cadeaux'
@@ -89,7 +89,7 @@ const onlineServerApiCommands = [
                     fr: 'Affiche tous les cadeaux, y compris ceux expirés'
                 })
                 .setRequired(false)
-        ),*/
+        ),
 ];
 
 const dataApiCommands = [
